@@ -11,7 +11,8 @@
   "dependencies": {
     "@toruslabs/casper-embed": "file:../../toruslabs-casper-embed-1.0.0.tgz",
     "core-js": "^3.8.3",
-    "vue": "^3.2.6"
+    "vue": "^3.2.6",
+    "casper-js-sdk": "^2.6.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.15.1",
