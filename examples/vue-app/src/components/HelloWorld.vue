@@ -1,6 +1,14 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import Torus from "@toruslabs/casper-embed";
+import { CasperServiceByJsonRPC, CLPublicKey, DeployUtil, encodeBase16 } from "casper-js-sdk";
+import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
+
+// Name of target chain.
+const DEPLOY_CHAIN_NAME = "casper-test";
+
+// Gas payment for native transfers to be offered.
+const DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER = 100000;
 
 const CHAINS = {
   CASPER_MAINNET: "casper",
@@ -36,15 +44,16 @@ const SUPPORTED_NETWORKS = {
 };
 
 let torus: Torus | null = null;
+
 const account = ref<string>("");
+
 onMounted(async () => {
   torus = new Torus();
   await torus.init({
     buildEnv: "development",
     showTorusButton: true,
+    network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
   });
-  console.log("finished initializing torus", torus);
-  // torus.login();
 });
 
 const login = async () => {
@@ -54,7 +63,52 @@ const login = async () => {
 
 const changeProvider = async () => {
   const providerRes = await torus?.setProvider(SUPPORTED_NETWORKS[CHAINS.CASPER_MAINNET]);
-  console.log("provider res", providerRes)
+  uiConsole("provider res", providerRes)
+}
+
+const getLatestBlock = async () => {
+  const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
+  const latestBlock  = await casperService.getLatestBlockInfo();
+  uiConsole("latest block", latestBlock);
+}
+
+const getUserInfo = async () => {
+  const userInfo  = await torus?.getUserInfo();
+  uiConsole("userInfo", userInfo);
+}
+
+const sendCSPR = async () => {
+  try {
+    const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8")
+    const senderKey = CLPublicKey.fromHex(account.value);
+    let deploy = DeployUtil.makeDeploy(
+        new DeployUtil.DeployParams(
+          senderKey, 
+          DEPLOY_CHAIN_NAME,
+          1,
+          1800000,
+        ),
+        DeployUtil.ExecutableDeployItem.newTransfer(
+          2500000000, // 2.5 cspr
+          receiverClPubKey, // receiver CLPubKey
+          null, // we will use main purse, so it can be left null
+          "12"
+        ),
+        DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER)
+    );
+
+  const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
+  const deployRes  = await casperService.deploy(deploy);
+  uiConsole("deploy res", deployRes);
+  } catch (error) {
+      uiConsole(error);
+  }
+}
+const uiConsole = (...args: any[]): void => {
+  const el = document.querySelector("#console>p");
+  if (el) {
+    el.innerHTML = JSON.stringify(args || {}, null, 2);
+  }
 }
 </script>
 
@@ -64,7 +118,18 @@ const changeProvider = async () => {
   </div>
   <div class="hello" v-else>
     Logged in with {{ account }}
-    <button @click="changeProvider">Change Provider</button>
+    <div>
+      <button @click="getUserInfo">Get User Info</button>
+      <button @click="changeProvider">Change Provider</button>
+      <button @click="getLatestBlock">Get Latest Block</button>
+      <button @click="sendCSPR">Send CSPR</button>
+    </div>
+   <div>
+   <div id="console" style="white-space: pre-line">
+      <p style="white-space: pre-line"></p>
+   </div>
+  </div>
+   
   </div>
 </template>
 
@@ -83,5 +148,32 @@ li {
 }
 a {
   color: #42b983;
+}
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+#console {
+  border: 2px solid black;
+  height: 300px;
+  padding: 2px;
+  text-align: left;
+  width: calc(100% - 20px);
+  border-radius: 5px;
+  margin-top: 20px;
+  margin-bottom: 80px;
+}
+#console > p {
+  margin: 0.5em;
+}
+button {
+  height: 25px;
+  margin: 5px;
+  background: none;
+  border-radius: 5px;
 }
 </style>
