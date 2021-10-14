@@ -23,7 +23,7 @@ declare class TorusCommunicationProvider extends BaseProvider<CommunicationProvi
      */
     isConnected(): boolean;
     get isLoggedIn(): boolean;
-    get isIframeFullScreen(): boolean;
+    get isIFrameFullScreen(): boolean;
     _initializeState(params: Record<string, unknown>): Promise<void>;
     /**
      * Internal RPC method. Forwards requests to background via the RPC engine.

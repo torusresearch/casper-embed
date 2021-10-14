@@ -43,7 +43,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
   protected static _defaultState: CommunicationProviderState = {
     buttonPosition: "bottom-left",
     currentLoginProvider: null,
-    isIframeFullScreen: false,
+    isIFrameFullScreen: false,
     hasEmittedConnection: false,
 
     torusWidgetVisibility: true,
@@ -110,8 +110,8 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
     return this._state.isLoggedIn;
   }
 
-  get isIframeFullScreen(): boolean {
-    return this._state.isIframeFullScreen;
+  get isIFrameFullScreen(): boolean {
+    return this._state.isIFrameFullScreen;
   }
 
   async _initializeState(params: Record<string, unknown>): Promise<void> {
@@ -123,7 +123,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
       this.torusIframe = torusIframe as HTMLIFrameElement;
       this.torusIframe.addEventListener("load", () => {
         // only do this if iframe is not full screen
-        if (!this._state.isIframeFullScreen) this._displayIframe();
+        if (!this._state.isIFrameFullScreen) this._displayIframe();
       });
       const { currentLoginProvider, isLoggedIn } = (await this.request({
         method: COMMUNICATION_JRPC_METHODS.GET_PROVIDER_STATE,
@@ -202,7 +202,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
         this._state.currentLoginProvider = null;
         this._state.isLoggedIn = false;
         this._state.torusWidgetVisibility = true;
-        this._state.isIframeFullScreen = false;
+        this._state.isIFrameFullScreen = false;
         this._state.isPermanentlyDisconnected = true;
       }
 
@@ -335,10 +335,10 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
       style.bottom = "0px";
     }
     Object.assign(this.torusIframe.style, style);
-    this._state.isIframeFullScreen = isFull;
+    this._state.isIFrameFullScreen = isFull;
     this.request<void>({
       method: COMMUNICATION_JRPC_METHODS.IFRAME_STATUS,
-      params: { isIframeFullScreen: isFull },
+      params: { isIFrameFullScreen: isFull },
     });
   }
 

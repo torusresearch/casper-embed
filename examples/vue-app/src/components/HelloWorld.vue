@@ -44,7 +44,9 @@ const SUPPORTED_NETWORKS = {
 };
 
 let torus: Torus | null = null;
+
 const account = ref<string>("");
+
 onMounted(async () => {
   torus = new Torus();
   await torus.init({
@@ -61,19 +63,24 @@ const login = async () => {
 
 const changeProvider = async () => {
   const providerRes = await torus?.setProvider(SUPPORTED_NETWORKS[CHAINS.CASPER_MAINNET]);
-  console.log("provider res", providerRes)
+  uiConsole("provider res", providerRes)
 }
 
 const getLatestBlock = async () => {
   const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
   const latestBlock  = await casperService.getLatestBlockInfo();
-  console.log("latest block", latestBlock);
+  uiConsole("latest block", latestBlock);
+}
+
+const getUserInfo = async () => {
+  const userInfo  = await torus?.getUserInfo();
+  uiConsole("userInfo", userInfo);
 }
 
 const sendCSPR = async () => {
   try {
     const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8")
-    const senderKey = CLPublicKey.fromHex("020322c56bcb2a7904ccd37787d877b66722a45abdd2adf25fecfcc516aaf37ba303");
+    const senderKey = CLPublicKey.fromHex(account.value);
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
           senderKey, 
@@ -92,10 +99,16 @@ const sendCSPR = async () => {
 
   const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
   const deployRes  = await casperService.deploy(deploy);
-  console.log("deploy res", deployRes);
-    } catch (error) {
-        console.log(error);
-    }
+  uiConsole("deploy res", deployRes);
+  } catch (error) {
+      uiConsole(error);
+  }
+}
+const uiConsole = (...args: any[]): void => {
+  const el = document.querySelector("#console>p");
+  if (el) {
+    el.innerHTML = JSON.stringify(args || {}, null, 2);
+  }
 }
 </script>
 
@@ -105,9 +118,18 @@ const sendCSPR = async () => {
   </div>
   <div class="hello" v-else>
     Logged in with {{ account }}
-    <button @click="changeProvider">Change Provider</button>
-    <button @click="getLatestBlock">Get Latest Block</button>
-    <button @click="sendCSPR">Send CSPR</button>
+    <div>
+      <button @click="getUserInfo">Get User Info</button>
+      <button @click="changeProvider">Change Provider</button>
+      <button @click="getLatestBlock">Get Latest Block</button>
+      <button @click="sendCSPR">Send CSPR</button>
+    </div>
+   <div>
+   <div id="console" style="white-space: pre-line">
+      <p style="white-space: pre-line"></p>
+   </div>
+  </div>
+   
   </div>
 </template>
 
@@ -126,5 +148,32 @@ li {
 }
 a {
   color: #42b983;
+}
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+#console {
+  border: 2px solid black;
+  height: 300px;
+  padding: 2px;
+  text-align: left;
+  width: calc(100% - 20px);
+  border-radius: 5px;
+  margin-top: 20px;
+  margin-bottom: 80px;
+}
+#console > p {
+  margin: 0.5em;
+}
+button {
+  height: 25px;
+  margin: 5px;
+  background: none;
+  border-radius: 5px;
 }
 </style>
