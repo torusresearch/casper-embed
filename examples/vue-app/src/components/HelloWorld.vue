@@ -77,6 +77,15 @@ const getUserInfo = async () => {
   uiConsole("userInfo", userInfo);
 }
 
+
+const logout = async () => {
+ try {
+    await torus?.logout();
+    account.value = "";
+ } catch (error) {
+   uiConsole("logout error", error);
+ }
+}
 const sendCSPR = async () => {
   try {
     const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8")
@@ -123,6 +132,7 @@ const uiConsole = (...args: any[]): void => {
       <button @click="changeProvider">Change Provider</button>
       <button @click="getLatestBlock">Get Latest Block</button>
       <button @click="sendCSPR">Send CSPR</button>
+      <button @click="logout">Logout</button>
     </div>
    <div>
    <div id="console" style="white-space: pre-line">
