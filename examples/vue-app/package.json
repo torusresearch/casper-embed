@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@toruslabs/casper-embed": "file:../../toruslabs-casper-embed-1.0.0.tgz",
-    "casper-js-sdk": "^2.6.0",
+    "casper-js-sdk": "^2.7.1",
     "core-js": "^3.8.3",
     "vue": "^3.2.6"
   },

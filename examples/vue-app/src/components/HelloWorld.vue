@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import Torus from "@toruslabs/casper-embed";
-import { CasperServiceByJsonRPC, CLPublicKey, DeployUtil, encodeBase16 } from "casper-js-sdk";
+import { CasperServiceByJsonRPC, CLPublicKey, DeployUtil } from "casper-js-sdk";
 import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
 
 // Name of target chain.
@@ -9,6 +9,8 @@ const DEPLOY_CHAIN_NAME = "casper-test";
 
 // Gas payment for native transfers to be offered.
 const DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER = 100000;
+const randomNumericId = () => Math.floor(Math.random() * 1000000000);
+
 
 const CHAINS = {
   CASPER_MAINNET: "casper",
@@ -88,7 +90,7 @@ const logout = async () => {
 }
 const sendCSPR = async () => {
   try {
-    const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8")
+    const receiverClPubKey = CLPublicKey.fromHex("013cf6d30266728538302eb8130b2336d1caca61240c25c362c99a894fd0b43507")
     const senderKey = CLPublicKey.fromHex(account.value);
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
@@ -101,7 +103,7 @@ const sendCSPR = async () => {
           2500000000, // 2.5 cspr
           receiverClPubKey, // receiver CLPubKey
           null, // we will use main purse, so it can be left null
-          "12"
+          randomNumericId()
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER)
     );
