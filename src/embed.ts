@@ -95,7 +95,7 @@ class Torus {
     buildEnv = TORUS_BUILD_ENV.PRODUCTION,
     enableLogging = false,
     network,
-    showTorusButton = true,
+    showTorusButton = false,
     useLocalStorage = false,
     buttonPosition = BUTTON_POSITION.BOTTOM_LEFT,
     apiKey = "torus-default",
@@ -138,29 +138,36 @@ class Torus {
 
     this.styleLink = htmlToElement<HTMLLinkElement>(`<link href="${torusUrl}/css/widget.css" rel="stylesheet" type="text/css">`);
 
-    const handleSetup = async () => {
-      window.document.head.appendChild(this.styleLink);
-      window.document.body.appendChild(this.torusIframe);
-      window.document.body.appendChild(this.torusAlertContainer);
-      this.torusIframe.addEventListener("load", async () => {
-        const dappMetadata = await getSiteMetadata();
-        // send init params here
-        this.torusIframe.contentWindow.postMessage(
-          {
-            buttonPosition,
-            apiKey,
-            network,
-            dappMetadata,
-          },
-          torusIframeUrl.origin
-        );
+    const handleSetup = () => {
+      return new Promise<void>((resolve, reject) => {
+        try {
+          window.document.head.appendChild(this.styleLink);
+          window.document.body.appendChild(this.torusIframe);
+          window.document.body.appendChild(this.torusAlertContainer);
+          this.torusIframe.addEventListener("load", async () => {
+            const dappMetadata = await getSiteMetadata();
+            // send init params here
+            this.torusIframe.contentWindow.postMessage(
+              {
+                buttonPosition,
+                apiKey,
+                network,
+                dappMetadata,
+              },
+              torusIframeUrl.origin
+            );
+            await this._setupWeb3({
+              torusUrl,
+            });
+            if (showTorusButton) this.showTorusButton();
+            else this.hideTorusButton();
+            this.isInitialized = true;
+            resolve();
+          });
+        } catch (error) {
+          reject(error);
+        }
       });
-      await this._setupWeb3({
-        torusUrl,
-      });
-      if (showTorusButton) this.showTorusButton();
-      else this.hideTorusButton();
-      this.isInitialized = true;
     };
 
     await documentReady();
@@ -275,6 +282,7 @@ class Torus {
       name: "embed_torus",
       target: "iframe_torus",
       targetWindow: this.torusIframe.contentWindow,
+      targetOrigin: providerParams.torusUrl,
     });
 
     // We create another LocalMessageDuplexStream for communication between dapp <> iframe
@@ -282,6 +290,7 @@ class Torus {
       name: "embed_communication",
       target: "iframe_communication",
       targetWindow: this.torusIframe.contentWindow,
+      targetOrigin: providerParams.torusUrl,
     });
 
     // compose the inPage provider

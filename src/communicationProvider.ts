@@ -46,7 +46,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
     isIFrameFullScreen: false,
     hasEmittedConnection: false,
 
-    torusWidgetVisibility: true,
+    torusWidgetVisibility: false,
     initialized: false,
     isLoggedIn: false,
     isPermanentlyDisconnected: false,
@@ -203,7 +203,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
         log.error(error);
         this._state.currentLoginProvider = null;
         this._state.isLoggedIn = false;
-        this._state.torusWidgetVisibility = true;
+        this._state.torusWidgetVisibility = false;
         this._state.isIFrameFullScreen = false;
         this._state.isPermanentlyDisconnected = true;
       }

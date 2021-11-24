@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import Torus from "@toruslabs/casper-embed";
-import { CasperServiceByJsonRPC, CLPublicKey, DeployUtil, encodeBase16 } from "casper-js-sdk";
+import { CasperServiceByJsonRPC, CLPublicKey, DeployUtil } from "casper-js-sdk";
 import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
 
 // Name of target chain.
@@ -13,11 +13,6 @@ const DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER = 100000;
 const CHAINS = {
   CASPER_MAINNET: "casper",
   CASPER_TESTNET: "casper-test",
-};
-
-const CHAIN_ID_NETWORK_MAP = {
-  "0x1": CHAINS.CASPER_MAINNET,
-  "0x2": CHAINS.CASPER_TESTNET,
 };
 
 const SUPPORTED_NETWORKS = {
@@ -51,74 +46,68 @@ onMounted(async () => {
   torus = new Torus();
   await torus.init({
     buildEnv: "development",
-    showTorusButton: true,
+    showTorusButton: false,
     network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
   });
 });
 
 const login = async () => {
   const loginaccs = await torus?.login();
-  account.value = (loginaccs || [])[0] || ""
-}
+  account.value = (loginaccs || [])[0] || "";
+};
 
 const changeProvider = async () => {
   const providerRes = await torus?.setProvider(SUPPORTED_NETWORKS[CHAINS.CASPER_MAINNET]);
-  uiConsole("provider res", providerRes)
-}
+  uiConsole("provider res", providerRes);
+};
 
 const getLatestBlock = async () => {
   const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
-  const latestBlock  = await casperService.getLatestBlockInfo();
+  const latestBlock = await casperService.getLatestBlockInfo();
   uiConsole("latest block", latestBlock);
-}
+};
 
 const getUserInfo = async () => {
-  const userInfo  = await torus?.getUserInfo();
+  const userInfo = await torus?.getUserInfo();
   uiConsole("userInfo", userInfo);
-}
-
+};
 
 const logout = async () => {
- try {
+  try {
     await torus?.logout();
     account.value = "";
- } catch (error) {
-   uiConsole("logout error", error);
- }
-}
+  } catch (error) {
+    uiConsole("logout error", error);
+  }
+};
 const sendCSPR = async () => {
   try {
-    const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8")
+    const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8");
     const senderKey = CLPublicKey.fromHex(account.value);
     let deploy = DeployUtil.makeDeploy(
-        new DeployUtil.DeployParams(
-          senderKey, 
-          DEPLOY_CHAIN_NAME,
-          1,
-          1800000,
-        ),
-        DeployUtil.ExecutableDeployItem.newTransfer(
-          2500000000, // 2.5 cspr
-          receiverClPubKey, // receiver CLPubKey
-          null, // we will use main purse, so it can be left null
-          "12"
-        ),
-        DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER)
+      new DeployUtil.DeployParams(senderKey, DEPLOY_CHAIN_NAME, 1, 1800000),
+      DeployUtil.ExecutableDeployItem.newTransfer(
+        2500000000, // 2.5 cspr
+        receiverClPubKey, // receiver CLPubKey
+        null, // we will use main purse, so it can be left null
+        "12"
+      ),
+      DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER)
     );
 
-  const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
-  const deployRes  = await casperService.deploy(deploy);
-  uiConsole("deploy res", deployRes);
+    const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
+    const deployRes = await casperService.deploy(deploy);
+    uiConsole("deploy res", deployRes);
   } catch (error) {
-      uiConsole(error);
+    uiConsole(error);
   }
-}
-const uiConsole = (...args: any[]): void => {
+};
+const uiConsole = (...args: unknown[]): void => {
   const el = document.querySelector("#console>p");
   if (el) {
     el.innerHTML = JSON.stringify(args || {}, null, 2);
   }
-}
+};
 </script>
 
 <template>
@@ -134,12 +123,11 @@ const uiConsole = (...args: any[]): void => {
       <button @click="sendCSPR">Send CSPR</button>
       <button @click="logout">Logout</button>
     </div>
-   <div>
-   <div id="console" style="white-space: pre-line">
-      <p style="white-space: pre-line"></p>
-   </div>
-  </div>
-   
+    <div>
+      <div id="console" style="white-space: pre-line">
+        <p style="white-space: pre-line"></p>
+      </div>
+    </div>
   </div>
 </template>
 
