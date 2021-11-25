@@ -61,7 +61,7 @@ onMounted(async () => {
 });
 
 const login = async () => {
-  const loginaccs = await torus?.login();
+  const loginaccs = await torus?.login({ loginProvider: "twitter"});
   account.value = (loginaccs || [])[0] || "";
 };
 
@@ -91,7 +91,7 @@ const logout = async () => {
 };
 const sendCSPR = async () => {
   try {
-    const receiverClPubKey = CLPublicKey.fromHex("013cf6d30266728538302eb8130b2336d1caca61240c25c362c99a894fd0b43507");
+    const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8");
     const senderKey = CLPublicKey.fromHex(account.value);
     let deploy = DeployUtil.makeDeploy(
       new DeployUtil.DeployParams(senderKey, DEPLOY_CHAIN_NAME, 1, 1800000),
