@@ -314,7 +314,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
   private async _createPopupBlockAlert(windowId: string, url: string): Promise<void> {
     const logoUrl = this.getLogoUrl();
     const torusAlert = htmlToElement<HTMLDivElement>(
-      '<div id="torusAlert" class="torus-alert--v2" style="display:block;">' +
+      '<div id="torusAlert" class="torus-alert--v2">' +
         `<div id="torusAlert__logo"><img src="${logoUrl}" /></div>` +
         "<div>" +
         `<h1 id="torusAlert__title">${this.embedTranslations.actionRequired}</h1>` +
