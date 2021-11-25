@@ -346,6 +346,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
     await documentReady();
     attachOnLoad();
     bindOnLoad();
+    this.torusAlertContainer.style.display = "block";
   }
 
   private getLogoUrl(): string {

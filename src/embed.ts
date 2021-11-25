@@ -178,15 +178,7 @@ class Torus {
     if (!this.isInitialized) throw new Error("Call init() first");
     try {
       this.requestedLoginProvider = params.loginProvider || null;
-      const reqParams: {
-        requestedLoginProvider?: LOGIN_PROVIDER_TYPE;
-        windowId?: string;
-      } = {};
-      if (this.requestedLoginProvider) {
-        reqParams.requestedLoginProvider = this.requestedLoginProvider;
-        reqParams.windowId = getWindowId();
-        this.communicationProvider._handleWindow(reqParams.windowId);
-      } else {
+      if (!this.requestedLoginProvider) {
         this.communicationProvider._displayIframe({ isFull: true });
       }
 
