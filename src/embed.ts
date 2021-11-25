@@ -58,12 +58,6 @@ const isLocalStorageAvailable = storageAvailable("localStorage");
 })();
 
 class Torus {
-  private torusUrl: string;
-
-  private torusIframe: HTMLIFrameElement;
-
-  private styleLink: HTMLLinkElement;
-
   isInitialized: boolean;
 
   torusAlert: HTMLDivElement;
@@ -72,8 +66,6 @@ class Torus {
 
   alertZIndex: number;
 
-  private torusAlertContainer: HTMLDivElement;
-
   public requestedLoginProvider?: LOGIN_PROVIDER_TYPE;
 
   provider: TorusInPageProvider;
@@ -81,6 +73,14 @@ class Torus {
   communicationProvider: TorusCommunicationProvider;
 
   dappStorageKey: string;
+
+  private torusAlertContainer: HTMLDivElement;
+
+  private torusUrl: string;
+
+  private torusIframe: HTMLIFrameElement;
+
+  private styleLink: HTMLLinkElement;
 
   constructor({ modalZIndex = 99999 }: TorusCtorArgs = {}) {
     this.torusUrl = "";
@@ -174,21 +174,6 @@ class Torus {
     await handleSetup();
   }
 
-  private handleDappStorageKey(useLocalStorage: boolean) {
-    let dappStorageKey = "";
-    if (isLocalStorageAvailable && useLocalStorage) {
-      const storedKey = window.localStorage.getItem(configuration.localStorageKey);
-      if (storedKey) dappStorageKey = storedKey;
-      else {
-        const generatedKey = `torus-app-${getWindowId()}`;
-        window.localStorage.setItem(configuration.localStorageKey, generatedKey);
-        dappStorageKey = generatedKey;
-      }
-    }
-    this.dappStorageKey = dappStorageKey;
-    return dappStorageKey;
-  }
-
   async login(params: { loginProvider?: LOGIN_PROVIDER_TYPE; login_hint?: string } = {}): Promise<string[]> {
     if (!this.isInitialized) throw new Error("Call init() first");
     try {
@@ -272,9 +257,53 @@ class Torus {
     this.communicationProvider.showTorusButton();
   }
 
-  /** @ignore */
+  async setProvider(params: NetworkInterface): Promise<void> {
+    await this.communicationProvider.request({
+      method: COMMUNICATION_JRPC_METHODS.SET_PROVIDER,
+      params: { ...params },
+    });
+  }
 
-  /** @ignore */
+  async showWallet(path: WALLET_PATH, params: Record<string, string> = {}): Promise<void> {
+    const instanceId = await this.communicationProvider.request<string>({
+      method: COMMUNICATION_JRPC_METHODS.WALLET_INSTANCE_ID,
+      params: [],
+    });
+    const finalPath = path ? `/${path}` : "";
+
+    const finalUrl = new URL(`${this.torusUrl}/wallet${finalPath}`);
+    // Using URL constructor to prevent js injection and allow parameter validation.!
+    finalUrl.searchParams.append("instanceId", instanceId);
+    Object.keys(params).forEach((x) => {
+      finalUrl.searchParams.append(x, params[x]);
+    });
+    if (this.dappStorageKey) {
+      finalUrl.hash = `#dappStorageKey=${this.dappStorageKey}`;
+    }
+    // No need to track this window state. Hence, no _handleWindow call.
+    const walletWindow = new PopupHandler({ url: finalUrl, features: getPopupFeatures(FEATURES_DEFAULT_WALLET_WINDOW) });
+    walletWindow.open();
+  }
+
+  async getUserInfo(): Promise<UserInfo> {
+    const userInfoResponse = await this.communicationProvider.request<UserInfo>({
+      method: COMMUNICATION_JRPC_METHODS.USER_INFO,
+      params: [],
+    });
+    return userInfoResponse as UserInfo;
+  }
+
+  async initiateTopup(provider: PAYMENT_PROVIDER_TYPE, params: PaymentParams): Promise<boolean> {
+    if (!this.isInitialized) throw new Error("Torus is not initialized");
+    const windowId = getWindowId();
+    this.communicationProvider._handleWindow(windowId);
+    const topupResponse = await this.communicationProvider.request<boolean>({
+      method: COMMUNICATION_JRPC_METHODS.TOPUP,
+      params: { provider, params, windowId },
+    });
+    return topupResponse;
+  }
+
   private async _setupWeb3(providerParams: { torusUrl: string }): Promise<void> {
     log.info("setupWeb3 running");
     // setup background connection
@@ -329,6 +358,7 @@ class Torus {
     // detect casper_requestAccounts and pipe to enable for now
     const detectAccountRequestPrototypeModifier = (m) => {
       const originalMethod = inPageProvider[m];
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
       inPageProvider[m] = function providerFunc(request, cb) {
         const { method, params = [] } = request;
@@ -377,51 +407,19 @@ class Torus {
     log.debug("Torus - injected provider");
   }
 
-  async setProvider(params: NetworkInterface): Promise<void> {
-    await this.communicationProvider.request({
-      method: COMMUNICATION_JRPC_METHODS.SET_PROVIDER,
-      params: { ...params },
-    });
-  }
-
-  async showWallet(path: WALLET_PATH, params: Record<string, string> = {}): Promise<void> {
-    const instanceId = await this.communicationProvider.request<string>({
-      method: COMMUNICATION_JRPC_METHODS.WALLET_INSTANCE_ID,
-      params: [],
-    });
-    const finalPath = path ? `/${path}` : "";
-
-    const finalUrl = new URL(`${this.torusUrl}/wallet${finalPath}`);
-    // Using URL constructor to prevent js injection and allow parameter validation.!
-    finalUrl.searchParams.append("instanceId", instanceId);
-    Object.keys(params).forEach((x) => {
-      finalUrl.searchParams.append(x, params[x]);
-    });
-    if (this.dappStorageKey) {
-      finalUrl.hash = `#dappStorageKey=${this.dappStorageKey}`;
+  private handleDappStorageKey(useLocalStorage: boolean) {
+    let dappStorageKey = "";
+    if (isLocalStorageAvailable && useLocalStorage) {
+      const storedKey = window.localStorage.getItem(configuration.localStorageKey);
+      if (storedKey) dappStorageKey = storedKey;
+      else {
+        const generatedKey = `torus-app-${getWindowId()}`;
+        window.localStorage.setItem(configuration.localStorageKey, generatedKey);
+        dappStorageKey = generatedKey;
+      }
     }
-    // No need to track this window state. Hence, no _handleWindow call.
-    const walletWindow = new PopupHandler({ url: finalUrl, features: getPopupFeatures(FEATURES_DEFAULT_WALLET_WINDOW) });
-    walletWindow.open();
-  }
-
-  async getUserInfo(): Promise<UserInfo> {
-    const userInfoResponse = await this.communicationProvider.request<UserInfo>({
-      method: COMMUNICATION_JRPC_METHODS.USER_INFO,
-      params: [],
-    });
-    return userInfoResponse as UserInfo;
-  }
-
-  async initiateTopup(provider: PAYMENT_PROVIDER_TYPE, params: PaymentParams): Promise<boolean> {
-    if (!this.isInitialized) throw new Error("Torus is not initialized");
-    const windowId = getWindowId();
-    this.communicationProvider._handleWindow(windowId);
-    const topupResponse = await this.communicationProvider.request<boolean>({
-      method: COMMUNICATION_JRPC_METHODS.TOPUP,
-      params: { provider, params, windowId },
-    });
-    return topupResponse;
+    this.dappStorageKey = dappStorageKey;
+    return dappStorageKey;
   }
 }
 
