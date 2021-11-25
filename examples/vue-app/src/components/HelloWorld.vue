@@ -41,14 +41,22 @@ const SUPPORTED_NETWORKS = {
 let torus: Torus | null = null;
 
 const account = ref<string>("");
+const isLoading = ref<boolean>(false);
 
 onMounted(async () => {
-  torus = new Torus();
-  await torus.init({
-    buildEnv: "development",
-    showTorusButton: false,
-    network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
-  });
+  try {
+    isLoading.value = true;
+    torus = new Torus();
+    await torus.init({
+      buildEnv: "development",
+      showTorusButton: false,
+      network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
+    });
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
 });
 
 const login = async () => {
@@ -111,7 +119,8 @@ const uiConsole = (...args: unknown[]): void => {
 </script>
 
 <template>
-  <div class="hello" v-if="!account">
+  <div v-if="isLoading">loading...</div>
+  <div class="hello" v-else-if="!account">
     <button @click="login">Login</button>
   </div>
   <div class="hello" v-else>

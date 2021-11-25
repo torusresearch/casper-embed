@@ -223,7 +223,7 @@ class Torus {
       log.error("login failed", error);
       throw error;
     } finally {
-      if (this.communicationProvider.isIFrameFullScreen) this.communicationProvider._displayIframe();
+      this.communicationProvider._displayIframe({ isFull: false });
     }
   }
 
