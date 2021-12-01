@@ -133,7 +133,7 @@ class Torus {
     );
 
     this.torusAlertContainer = htmlToElement<HTMLDivElement>(
-      `<div id="torusAlertContainer style="display:none; z-index: ${this.alertZIndex.toString()}"></div>`
+      `<div id="torusAlertContainer" style="display:none; z-index: ${this.alertZIndex.toString()}"></div>`
     );
 
     this.styleLink = htmlToElement<HTMLLinkElement>(`<link href="${torusUrl}/css/widget.css" rel="stylesheet" type="text/css">`);
