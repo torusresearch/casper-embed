@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import Torus from "@toruslabs/casper-embed";
-import { CasperServiceByJsonRPC, CLPublicKey, DeployUtil } from "casper-js-sdk";
+import { CasperServiceByJsonRPC, CLPublicKey, CLValueBuilder, decodeBase16, DeployUtil, RuntimeArgs } from "casper-js-sdk";
 import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
 
 // Name of target chain.
@@ -49,8 +49,8 @@ onMounted(async () => {
     isLoading.value = true;
     torus = new Torus();
     await torus.init({
-      buildEnv: "development",
-      showTorusButton: false,
+      buildEnv: "testing",
+      showTorusButton: true,
       network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
     });
   } catch (error) {
@@ -111,6 +111,81 @@ const sendCSPR = async () => {
     uiConsole(error);
   }
 };
+
+const transferErc20Tokens = async () => {
+    const AMOUNT_TO_TRANSFER = 2000000000000;
+    // Gas price to be offered.
+    const DEPLOY_GAS_PRICE = 1; 
+    // Time interval in milliseconds after which deploy will not be processed by a node.
+    const DEPLOY_TTL_MS = 1800000;
+    const DEPLOY_GAS_PAYMENT = 200000000000;
+    const receiverCLPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8")
+    const senderKey = CLPublicKey.fromHex(account.value);
+
+    const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
+
+    const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b";
+    const contractHashAsByteArray = decodeBase16(contractHash)
+
+    let deploy = DeployUtil.makeDeploy(
+        new DeployUtil.DeployParams(
+            senderKey,
+            DEPLOY_CHAIN_NAME,
+            DEPLOY_GAS_PRICE,
+            DEPLOY_TTL_MS
+        ),
+        DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+            contractHashAsByteArray,
+            "transfer",
+            RuntimeArgs.fromMap({
+                amount: CLValueBuilder.u256(AMOUNT_TO_TRANSFER),
+                recipient: CLValueBuilder.byteArray(receiverCLPubKey.toAccountHash()),
+            })
+        ),
+        DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
+    );
+  
+      const deployRes = await casperService.deploy(deploy)       
+      uiConsole(deployRes);
+}
+
+const approveErc20Tokens = async (): Promise<void> => {
+   
+       const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
+
+      const spenderCLPubKey = CLPublicKey.fromHex(account.value)
+
+      // Gas price to be offered.
+      const DEPLOY_GAS_PRICE = 1; 
+      // Time interval in milliseconds after which deploy will not be processed by a node.
+      const DEPLOY_TTL_MS = 1800000;
+      const DEPLOY_GAS_PAYMENT = 200000000000;
+      const AMOUNT_TO_APPROVE = 1000000000000; 
+      const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b"
+      const contractHashAsByteArray = decodeBase16(contractHash)
+   
+        let deploy = DeployUtil.makeDeploy(
+            new DeployUtil.DeployParams(
+                spenderCLPubKey,
+                DEPLOY_CHAIN_NAME,
+                DEPLOY_GAS_PRICE,
+                DEPLOY_TTL_MS
+            ),
+            DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+                contractHashAsByteArray,
+                "approve",
+                RuntimeArgs.fromMap({
+                    amount: CLValueBuilder.u256(AMOUNT_TO_APPROVE),
+                    spender: CLValueBuilder.byteArray(spenderCLPubKey.toAccountHash()),
+                })
+            ),
+            DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
+        );
+   
+   
+        const deployRes = await casperService.deploy(deploy) 
+        uiConsole(deployRes)      
+}
 const uiConsole = (...args: unknown[]): void => {
   const el = document.querySelector("#console>p");
   if (el) {
@@ -131,6 +206,8 @@ const uiConsole = (...args: unknown[]): void => {
       <button @click="changeProvider">Change Provider</button>
       <button @click="getLatestBlock">Get Latest Block</button>
       <button @click="sendCSPR">Send CSPR</button>
+      <button @click="approveErc20Tokens">Approve Erc20 Tokens</button>
+      <button @click="transferErc20Tokens">Transfer Erc20 Tokens</button>
       <button @click="logout">Logout</button>
     </div>
     <div>
