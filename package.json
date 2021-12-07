@@ -1,6 +1,6 @@
 {
   "name": "@toruslabs/casper-embed",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Embed script for casper blockchain",
   "main": "dist/torus.cjs.js",
   "module": "dist/torus.esm.js",
