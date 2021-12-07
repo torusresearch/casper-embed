@@ -49,7 +49,7 @@ onMounted(async () => {
     isLoading.value = true;
     torus = new Torus();
     await torus.init({
-      buildEnv: "testing",
+      buildEnv: "development",
       showTorusButton: true,
       network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
     });
@@ -61,7 +61,7 @@ onMounted(async () => {
 });
 
 const login = async () => {
-  const loginaccs = await torus?.login({ loginProvider: "twitter"});
+  const loginaccs = await torus?.login();
   account.value = (loginaccs || [])[0] || "";
 };
 
@@ -113,79 +113,67 @@ const sendCSPR = async () => {
 };
 
 const transferErc20Tokens = async () => {
-    const AMOUNT_TO_TRANSFER = 2000000000000;
-    // Gas price to be offered.
-    const DEPLOY_GAS_PRICE = 1; 
-    // Time interval in milliseconds after which deploy will not be processed by a node.
-    const DEPLOY_TTL_MS = 1800000;
-    const DEPLOY_GAS_PAYMENT = 200000000000;
-    const receiverCLPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8")
-    const senderKey = CLPublicKey.fromHex(account.value);
+  const AMOUNT_TO_TRANSFER = 2000000000000;
+  // Gas price to be offered.
+  const DEPLOY_GAS_PRICE = 1;
+  // Time interval in milliseconds after which deploy will not be processed by a node.
+  const DEPLOY_TTL_MS = 1800000;
+  const DEPLOY_GAS_PAYMENT = 200000000000;
+  const receiverCLPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8");
+  const senderKey = CLPublicKey.fromHex(account.value);
 
-    const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
+  const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
 
-    const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b";
-    const contractHashAsByteArray = decodeBase16(contractHash)
+  const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b";
+  const contractHashAsByteArray = decodeBase16(contractHash);
 
-    let deploy = DeployUtil.makeDeploy(
-        new DeployUtil.DeployParams(
-            senderKey,
-            DEPLOY_CHAIN_NAME,
-            DEPLOY_GAS_PRICE,
-            DEPLOY_TTL_MS
-        ),
-        DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-            contractHashAsByteArray,
-            "transfer",
-            RuntimeArgs.fromMap({
-                amount: CLValueBuilder.u256(AMOUNT_TO_TRANSFER),
-                recipient: CLValueBuilder.byteArray(receiverCLPubKey.toAccountHash()),
-            })
-        ),
-        DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
-    );
-  
-      const deployRes = await casperService.deploy(deploy)       
-      uiConsole(deployRes);
-}
+  let deploy = DeployUtil.makeDeploy(
+    new DeployUtil.DeployParams(senderKey, DEPLOY_CHAIN_NAME, DEPLOY_GAS_PRICE, DEPLOY_TTL_MS),
+    DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+      contractHashAsByteArray,
+      "transfer",
+      RuntimeArgs.fromMap({
+        amount: CLValueBuilder.u256(AMOUNT_TO_TRANSFER),
+        recipient: CLValueBuilder.byteArray(receiverCLPubKey.toAccountHash()),
+      })
+    ),
+    DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
+  );
+
+  const deployRes = await casperService.deploy(deploy);
+  uiConsole(deployRes);
+};
 
 const approveErc20Tokens = async (): Promise<void> => {
-   
-       const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
+  const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
 
-      const spenderCLPubKey = CLPublicKey.fromHex(account.value)
+  const spenderCLPubKey = CLPublicKey.fromHex(account.value);
 
-      // Gas price to be offered.
-      const DEPLOY_GAS_PRICE = 1; 
-      // Time interval in milliseconds after which deploy will not be processed by a node.
-      const DEPLOY_TTL_MS = 1800000;
-      const DEPLOY_GAS_PAYMENT = 200000000000;
-      const AMOUNT_TO_APPROVE = 1000000000000; 
-      const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b"
-      const contractHashAsByteArray = decodeBase16(contractHash)
-   
-        let deploy = DeployUtil.makeDeploy(
-            new DeployUtil.DeployParams(
-                spenderCLPubKey,
-                DEPLOY_CHAIN_NAME,
-                DEPLOY_GAS_PRICE,
-                DEPLOY_TTL_MS
-            ),
-            DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-                contractHashAsByteArray,
-                "approve",
-                RuntimeArgs.fromMap({
-                    amount: CLValueBuilder.u256(AMOUNT_TO_APPROVE),
-                    spender: CLValueBuilder.byteArray(spenderCLPubKey.toAccountHash()),
-                })
-            ),
-            DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
-        );
-   
-   
-        const deployRes = await casperService.deploy(deploy) 
-        uiConsole(deployRes)      
-}
+  // Gas price to be offered.
+  const DEPLOY_GAS_PRICE = 1;
+  // Time interval in milliseconds after which deploy will not be processed by a node.
+  const DEPLOY_TTL_MS = 1800000;
+  const DEPLOY_GAS_PAYMENT = 200000000000;
+  const AMOUNT_TO_APPROVE = 1000000000000;
+  const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b";
+  const contractHashAsByteArray = decodeBase16(contractHash);
+
+  let deploy = DeployUtil.makeDeploy(
+    new DeployUtil.DeployParams(spenderCLPubKey, DEPLOY_CHAIN_NAME, DEPLOY_GAS_PRICE, DEPLOY_TTL_MS),
+    DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+      contractHashAsByteArray,
+      "approve",
+      RuntimeArgs.fromMap({
+        amount: CLValueBuilder.u256(AMOUNT_TO_APPROVE),
+        spender: CLValueBuilder.byteArray(spenderCLPubKey.toAccountHash()),
+      })
+    ),
+    DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
+  );
+
+  const deployRes = await casperService.deploy(deploy);
+  uiConsole(deployRes);
+};
 const uiConsole = (...args: unknown[]): void => {
   const el = document.querySelector("#console>p");
   if (el) {
