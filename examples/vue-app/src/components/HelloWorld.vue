@@ -49,7 +49,7 @@ onMounted(async () => {
     isLoading.value = true;
     torus = new Torus();
     await torus.init({
-      buildEnv: "development",
+      buildEnv: "testing",
       showTorusButton: true,
       network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
     });
