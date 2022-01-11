@@ -48,8 +48,6 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
 
   public windowRefs: Record<string, PopupHandler>;
 
-  protected _state: CommunicationProviderState;
-
   private torusAlertContainer: HTMLDivElement;
 
   private torusIframe: HTMLIFrameElement;
