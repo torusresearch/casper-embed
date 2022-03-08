@@ -1,6 +1,7 @@
 import { COMMUNICATION_JRPC_METHODS } from "@toruslabs/base-controllers";
 import { setAPIKey } from "@toruslabs/http-helpers";
 import { BasePostMessageStream, getRpcPromiseCallback, JRPCRequest } from "@toruslabs/openlogin-jrpc";
+import { SignMessageParams } from ".//interfaces";
 
 import TorusCommunicationProvider from "./communicationProvider";
 import configuration from "./config";
@@ -32,7 +33,7 @@ import {
   storageAvailable,
 } from "./utils";
 
-const PROVIDER_UNSAFE_METHODS = ["account_put_deploy"];
+const PROVIDER_UNSAFE_METHODS = ["account_put_deploy", "sign_message"];
 const COMMUNICATION_UNSAFE_METHODS = [COMMUNICATION_JRPC_METHODS.SET_PROVIDER];
 
 const isLocalStorageAvailable = storageAvailable("localStorage");
@@ -294,6 +295,15 @@ class Torus {
       params: { provider, params, windowId },
     });
     return topupResponse;
+  }
+
+  async signMessage(params: SignMessageParams): Promise<{ signature: string }> {
+    if (!this.isInitialized) throw new Error("Torus is not initialized");
+    const signMessageRes = await this.provider.request<{ signature: string }>({
+      method: "sign_message",
+      params: { ...params },
+    });
+    return signMessageRes as { signature: string };
   }
 
   private async _setupWeb3(providerParams: { torusUrl: string }): Promise<void> {

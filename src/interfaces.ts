@@ -126,6 +126,10 @@ export interface PaymentParams {
    */
   selectedCryptoCurrency?: string;
 }
+export interface SignMessageParams {
+  message: string;
+  from: string;
+}
 
 export interface LoginParams {
   loginProvider?: string;
