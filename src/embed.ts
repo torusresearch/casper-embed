@@ -1,25 +1,25 @@
 import { COMMUNICATION_JRPC_METHODS } from "@toruslabs/base-controllers";
 import { setAPIKey } from "@toruslabs/http-helpers";
 import { BasePostMessageStream, getRpcPromiseCallback, JRPCRequest } from "@toruslabs/openlogin-jrpc";
-import { SignMessageParams } from ".//interfaces";
 
-import TorusCommunicationProvider from "./communicationProvider";
-import configuration from "./config";
-import { documentReady, htmlToElement } from "./embedUtils";
-import TorusInPageProvider from "./inPageProvider";
 import {
   BUTTON_POSITION,
   LOGIN_PROVIDER_TYPE,
   NetworkInterface,
   PAYMENT_PROVIDER_TYPE,
   PaymentParams,
+  SignMessageParams,
   TORUS_BUILD_ENV,
   TorusCtorArgs,
   TorusParams,
   UnValidatedJsonRpcRequest,
   UserInfo,
   WALLET_PATH,
-} from "./interfaces";
+} from ".//interfaces";
+import TorusCommunicationProvider from "./communicationProvider";
+import configuration from "./config";
+import { documentReady, htmlToElement } from "./embedUtils";
+import TorusInPageProvider from "./inPageProvider";
 import log from "./loglevel";
 import PopupHandler from "./PopupHandler";
 import getSiteMetadata from "./siteMetadata";
@@ -297,13 +297,13 @@ class Torus {
     return topupResponse;
   }
 
-  async signMessage(params: SignMessageParams): Promise<{ signature: string }> {
+  async signMessage(params: SignMessageParams): Promise<{ signature: Uint8Array }> {
     if (!this.isInitialized) throw new Error("Torus is not initialized");
-    const signMessageRes = await this.provider.request<{ signature: string }>({
+    const signMessageRes = await this.provider.request<{ signature: Uint8Array }>({
       method: "sign_message",
       params: { ...params },
     });
-    return signMessageRes as { signature: string };
+    return signMessageRes as { signature: Uint8Array };
   }
 
   private async _setupWeb3(providerParams: { torusUrl: string }): Promise<void> {

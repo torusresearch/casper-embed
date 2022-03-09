@@ -12,7 +12,7 @@
     "src"
   ],
   "scripts": {
-    "dev": "rimraf dist/ && cross-env NODE_ENV=development torus-scripts build --name=torus",
+    "dev": "rimraf dist/ && cross-env NODE_ENV=development torus-scripts start --name=torus",
     "build": "rimraf dist/ && cross-env NODE_ENV=production torus-scripts build --name=torus",
     "prepack": "npm run build",
     "lint:ts": "eslint --fix 'src/**/*.ts'",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@babel/runtime": "^7.16.7",
     "@toruslabs/eslint-config-typescript": "^0.1.4",
-    "@toruslabs/torus-scripts": "^0.1.6",
+    "@toruslabs/torus-scripts": "^0.4.3",
     "@types/node": "^14.17.0",
     "@types/once": "^1.4.0",
     "@types/pump": "^1.1.1",
