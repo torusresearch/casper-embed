@@ -1,4 +1,9 @@
-import { COMMUNICATION_JRPC_METHODS, COMMUNICATION_NOTIFICATIONS, CommunicationWalletProviderState } from "@toruslabs/base-controllers";
+import {
+  COMMUNICATION_JRPC_METHODS,
+  COMMUNICATION_NOTIFICATIONS,
+  CommunicationWalletProviderState,
+  RequestArguments,
+} from "@toruslabs/base-controllers";
 import { JRPCRequest } from "@toruslabs/openlogin-jrpc";
 import { EthereumRpcError } from "eth-rpc-errors";
 import type { Duplex } from "readable-stream";
@@ -12,7 +17,6 @@ import {
   EMBED_TRANSLATION_ITEM,
   LOGIN_PROVIDER_TYPE,
   ProviderOptions,
-  RequestArguments,
   UnValidatedJsonRpcRequest,
 } from "./interfaces";
 import log from "./loglevel";
@@ -74,7 +78,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
       this._state.isConnected = true;
     });
 
-    const notificationHandler = (payload: RequestArguments) => {
+    const notificationHandler = (payload: RequestArguments<unknown>) => {
       const { method, params } = payload;
       if (method === COMMUNICATION_NOTIFICATIONS.IFRAME_STATUS) {
         const { isFullScreen, rid } = params as Record<string, unknown>;
@@ -156,14 +160,14 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
     // Add to collection only if window is opened
     this.windowRefs[windowId] = handledWindow;
     // We tell the iframe that the window has been successfully opened
-    this.request<void>({
+    this.request<{ windowId: string }, void>({
       method: COMMUNICATION_JRPC_METHODS.OPENED_WINDOW,
       params: { windowId },
     });
     handledWindow.once("close", () => {
       // user closed the window
       delete this.windowRefs[windowId];
-      this.request<void>({
+      this.request<{ windowId: string }, void>({
         method: COMMUNICATION_JRPC_METHODS.CLOSED_WINDOW,
         params: { windowId },
       });
@@ -215,7 +219,7 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
     }
     Object.assign(this.torusIframe.style, style);
     this._state.isIFrameFullScreen = isFull;
-    this.request<void>({
+    this.request<{ isIFrameFullScreen: boolean; rid?: string }, void>({
       method: COMMUNICATION_JRPC_METHODS.IFRAME_STATUS,
       params: { isIFrameFullScreen: isFull, rid },
     });
