@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import Torus from "@toruslabs/casper-embed";
-import { CasperServiceByJsonRPC, CLPublicKey, CLValueBuilder, decodeBase16, DeployUtil, RuntimeArgs } from "casper-js-sdk";
+import { CasperServiceByJsonRPC, CLPublicKey, CLValueBuilder, decodeBase16, DeployUtil, RuntimeArgs, verifyMessageSignature } from "casper-js-sdk";
 import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
 
 // Name of target chain.
@@ -49,7 +49,7 @@ onMounted(async () => {
     isLoading.value = true;
     torus = new Torus();
     await torus.init({
-      buildEnv: "testing",
+      buildEnv: "development",
       showTorusButton: true,
       network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
     });
@@ -79,6 +79,25 @@ const getLatestBlock = async () => {
 const getUserInfo = async () => {
   const userInfo = await torus?.getUserInfo();
   uiConsole("userInfo", userInfo);
+};
+
+const signMessage = async () => {
+  try {
+    const message = "test message";
+    const res = await torus?.signMessage({
+      message,
+      from: account.value,
+    });
+    if (res?.signature) {
+      const pubKey = CLPublicKey.fromHex(account.value);
+      const isVerified = verifyMessageSignature(pubKey, message, res?.signature);
+      uiConsole(`signature verified: ${isVerified}`, res.signature);
+    } else {
+      uiConsole("signature", "failed to sign message");
+    }
+  } catch (error) {
+    uiConsole("failed to sign message", error);
+  }
 };
 
 const logout = async () => {
@@ -193,6 +212,7 @@ const uiConsole = (...args: unknown[]): void => {
       <button @click="getUserInfo">Get User Info</button>
       <button @click="changeProvider">Change Provider</button>
       <button @click="getLatestBlock">Get Latest Block</button>
+      <button @click="signMessage">Sign Message</button>
       <button @click="sendCSPR">Send CSPR</button>
       <button @click="approveErc20Tokens">Approve Erc20 Tokens</button>
       <button @click="transferErc20Tokens">Transfer Erc20 Tokens</button>

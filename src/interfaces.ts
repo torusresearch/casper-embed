@@ -126,6 +126,10 @@ export interface PaymentParams {
    */
   selectedCryptoCurrency?: string;
 }
+export interface SignMessageParams {
+  message: string;
+  from: string;
+}
 
 export interface LoginParams {
   loginProvider?: string;
@@ -272,12 +276,4 @@ export type Maybe<T> = Partial<T> | T | null | undefined;
 
 export interface UnValidatedJsonRpcRequest extends JRPCRequest<unknown> {
   windowId?: string;
-}
-
-export interface RequestArguments {
-  /** The RPC method to request. */
-  method: string;
-
-  /** The params of the RPC method, if any. */
-  params?: unknown[] | Record<string, unknown>;
 }

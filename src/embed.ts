@@ -2,23 +2,24 @@ import { COMMUNICATION_JRPC_METHODS } from "@toruslabs/base-controllers";
 import { setAPIKey } from "@toruslabs/http-helpers";
 import { BasePostMessageStream, getRpcPromiseCallback, JRPCRequest } from "@toruslabs/openlogin-jrpc";
 
-import TorusCommunicationProvider from "./communicationProvider";
-import configuration from "./config";
-import { documentReady, htmlToElement } from "./embedUtils";
-import TorusInPageProvider from "./inPageProvider";
 import {
   BUTTON_POSITION,
   LOGIN_PROVIDER_TYPE,
   NetworkInterface,
   PAYMENT_PROVIDER_TYPE,
   PaymentParams,
+  SignMessageParams,
   TORUS_BUILD_ENV,
   TorusCtorArgs,
   TorusParams,
   UnValidatedJsonRpcRequest,
   UserInfo,
   WALLET_PATH,
-} from "./interfaces";
+} from ".//interfaces";
+import TorusCommunicationProvider from "./communicationProvider";
+import configuration from "./config";
+import { documentReady, htmlToElement } from "./embedUtils";
+import TorusInPageProvider from "./inPageProvider";
 import log from "./loglevel";
 import PopupHandler from "./PopupHandler";
 import getSiteMetadata from "./siteMetadata";
@@ -32,7 +33,7 @@ import {
   storageAvailable,
 } from "./utils";
 
-const PROVIDER_UNSAFE_METHODS = ["account_put_deploy"];
+const PROVIDER_UNSAFE_METHODS = ["account_put_deploy", "sign_message"];
 const COMMUNICATION_UNSAFE_METHODS = [COMMUNICATION_JRPC_METHODS.SET_PROVIDER];
 
 const isLocalStorageAvailable = storageAvailable("localStorage");
@@ -257,7 +258,7 @@ class Torus {
   }
 
   async showWallet(path: WALLET_PATH, params: Record<string, string> = {}): Promise<void> {
-    const instanceId = await this.communicationProvider.request<string>({
+    const instanceId = await this.communicationProvider.request<[], string>({
       method: COMMUNICATION_JRPC_METHODS.WALLET_INSTANCE_ID,
       params: [],
     });
@@ -278,7 +279,7 @@ class Torus {
   }
 
   async getUserInfo(): Promise<UserInfo> {
-    const userInfoResponse = await this.communicationProvider.request<UserInfo>({
+    const userInfoResponse = await this.communicationProvider.request<[], UserInfo>({
       method: COMMUNICATION_JRPC_METHODS.USER_INFO,
       params: [],
     });
@@ -289,11 +290,23 @@ class Torus {
     if (!this.isInitialized) throw new Error("Torus is not initialized");
     const windowId = getWindowId();
     this.communicationProvider._handleWindow(windowId);
-    const topupResponse = await this.communicationProvider.request<boolean>({
+    const topupResponse = await this.communicationProvider.request<
+      { provider: PAYMENT_PROVIDER_TYPE; params: PaymentParams; windowId: string },
+      boolean
+    >({
       method: COMMUNICATION_JRPC_METHODS.TOPUP,
       params: { provider, params, windowId },
     });
     return topupResponse;
+  }
+
+  async signMessage(params: SignMessageParams): Promise<{ signature: Uint8Array }> {
+    if (!this.isInitialized) throw new Error("Torus is not initialized");
+    const signMessageRes = await this.provider.request<SignMessageParams, { signature: Uint8Array }>({
+      method: "sign_message",
+      params: { ...params },
+    });
+    return signMessageRes as { signature: Uint8Array };
   }
 
   private async _setupWeb3(providerParams: { torusUrl: string }): Promise<void> {

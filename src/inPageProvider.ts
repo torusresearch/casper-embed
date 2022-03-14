@@ -1,11 +1,11 @@
-import { InPageWalletProviderState, PROVIDER_JRPC_METHODS, PROVIDER_NOTIFICATIONS } from "@toruslabs/base-controllers";
+import { InPageWalletProviderState, PROVIDER_JRPC_METHODS, PROVIDER_NOTIFICATIONS, RequestArguments } from "@toruslabs/base-controllers";
 import { JRPCRequest, JRPCSuccess } from "@toruslabs/openlogin-jrpc";
 import { EthereumRpcError } from "eth-rpc-errors";
 import dequal from "fast-deep-equal";
 import type { Duplex } from "readable-stream";
 
 import BaseProvider from "./baseProvider";
-import { InPageProviderState, ProviderOptions, RequestArguments, UnValidatedJsonRpcRequest } from "./interfaces";
+import { InPageProviderState, ProviderOptions, UnValidatedJsonRpcRequest } from "./interfaces";
 import log from "./loglevel";
 import messages from "./messages";
 
@@ -61,7 +61,7 @@ class TorusInPageProvider extends BaseProvider<InPageProviderState> {
       this._state.isConnected = true;
     });
 
-    const jsonRpcNotificationHandler = (payload: RequestArguments) => {
+    const jsonRpcNotificationHandler = (payload: RequestArguments<unknown>) => {
       const { method, params } = payload;
       if (method === PROVIDER_NOTIFICATIONS.ACCOUNTS_CHANGED) {
         this._handleAccountsChanged(params as unknown[]);
