@@ -89,19 +89,16 @@ const signMessage = async () => {
       from: account.value,
     });
     if (res?.signature) {
-      const pubKey = CLPublicKey.fromHex(account.value)
+      const pubKey = CLPublicKey.fromHex(account.value);
       const isVerified = verifyMessageSignature(pubKey, message, res?.signature);
-      uiConsole(`signature verified: ${isVerified}`, res);
-
+      uiConsole(`signature verified: ${isVerified}`, res.signature);
     } else {
       uiConsole("signature", "failed to sign message");
     }
   } catch (error) {
-      uiConsole("failed to sign message", error);
+    uiConsole("failed to sign message", error);
   }
-
 };
-
 
 const logout = async () => {
   try {
@@ -215,7 +212,7 @@ const uiConsole = (...args: unknown[]): void => {
       <button @click="getUserInfo">Get User Info</button>
       <button @click="changeProvider">Change Provider</button>
       <button @click="getLatestBlock">Get Latest Block</button>
-       <button @click="signMessage">Sign Message</button>
+      <button @click="signMessage">Sign Message</button>
       <button @click="sendCSPR">Send CSPR</button>
       <button @click="approveErc20Tokens">Approve Erc20 Tokens</button>
       <button @click="transferErc20Tokens">Transfer Erc20 Tokens</button>

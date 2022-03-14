@@ -1,4 +1,4 @@
-import { createLoggerMiddleware, SafeEventEmitterProvider, SendCallBack } from "@toruslabs/base-controllers";
+import { createLoggerMiddleware, RequestArguments, SafeEventEmitterProvider, SendCallBack } from "@toruslabs/base-controllers";
 import {
   createIdRemapMiddleware,
   createStreamMiddleware,
@@ -15,7 +15,7 @@ import { isDuplexStream } from "is-stream";
 import pump from "pump";
 import type { Duplex } from "readable-stream";
 
-import { BaseProviderState, Maybe, ProviderOptions, RequestArguments, UnValidatedJsonRpcRequest } from "./interfaces";
+import { BaseProviderState, Maybe, ProviderOptions, UnValidatedJsonRpcRequest } from "./interfaces";
 import messages from "./messages";
 import { createErrorMiddleware, logStreamDisconnectWarning } from "./utils";
 
@@ -96,7 +96,7 @@ abstract class BaseProvider<U extends BaseProviderState> extends SafeEventEmitte
    * @returns A Promise that resolves with the result of the RPC method,
    * or rejects if an error is encountered.
    */
-  async request<T>(args: RequestArguments): Promise<Maybe<T>> {
+  async request<T, P>(args: RequestArguments<T>): Promise<Maybe<P>> {
     if (!args || typeof args !== "object" || Array.isArray(args)) {
       throw ethErrors.rpc.invalidRequest({
         message: messages.errors.invalidRequestArgs(),
