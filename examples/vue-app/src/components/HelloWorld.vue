@@ -241,9 +241,9 @@ const clearUiconsole = (): void => {
       </div>
     </div>
 
-    <div class="grid md:rows-span-4 gap-2 md:grid-cols-5 height-fit mx-2">
-      <div class="grid md:col-span-2 md:grid-row-10 gap-1 box text-left pl-5">
-        <div class="grid md:grid-cols-2 row-span-1 pt-10">
+    <div class="grid md:rows-span-4 md:grid-cols-5 height-fit mx-2">
+      <div class="grid md:col-span-2 md:grid-row-10 box text-left pl-5">
+        <div class="grid md:grid-cols-2 row-span-1 gap-2 pt-10">
           <div class="col-span-1">
             <span class="pl-2 font-semibold">User Info</span><button @click="getUserInfo" class="btn">Get User Info</button>
           </div>
@@ -276,7 +276,7 @@ const clearUiconsole = (): void => {
         </div>
         <div class="md:row-span-5"></div>
       </div>
-      <div class="grid md:col-span-3 box-grey overflow-hidden" id="console">
+      <div class="grid md:col-span-3 box-grey overflow-hidden min-h-[200px]" id="console">
         <p style="white-space: pre-line"></p>
         <div><button class="clear-button" @click="clearUiconsole">Clear console</button></div>
       </div>
@@ -332,10 +332,9 @@ a {
 .btn {
   height: 40px;
   margin: 5px;
-  width: 90%;
   /* background: none; */
   box-sizing: border-box;
-
+  width: 100%;
   background: #ffffff;
   /* Shades of Grey/secondary-grey */
 
