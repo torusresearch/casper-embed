@@ -215,11 +215,49 @@ const clearUiconsole = (): void => {
     <h6 class="pb-10 font-semibold">Build Environment : testing</h6>
     <button @click="login" class="btn-login">Login with Private Key</button>
   </div>
-  <div class="grid md:grid-rows-6 max-h-screen" v-else>
-    <div class="md:rows-span-2 box grid md:grid-cols-12 p-5">
+  <div v-else>
+    <div class="flex">
+      <div>header</div>
+      <div class="ml-auto">
+        <button>1</button>
+        <button>1</button>
+        <button>1</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-5 gap-7">
+      <div class="grid grid-cols-2 col-span-5 md:col-span-2 text-left gap-2 p-4">
+        <div class="col-span-1">
+          <div>title</div>
+          <div><button class="btn">Approve Erc20 Tokens</button></div>
+        </div>
+        <div class="col-span-1">
+          <div>title</div>
+          <div><button class="btn">Approve Erc20 Tokens</button></div>
+        </div>
+        <div class="col-span-2 text-left">
+          <div>Tokens</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="btn">Approve Erc20 Tokens</button>
+            <button class="btn">Approve Erc20 Tokens</button>
+          </div>
+        </div>
+        <div class="col-span-1">
+          <div>title</div>
+          <div><button class="btn">1</button></div>
+        </div>
+        <div class="col-span-1">
+          <div>title</div>
+          <div><button class="btn">1</button></div>
+        </div>
+      </div>
+      <div class="col-span-3 bg-blue-500">2</div>
+    </div>
+  </div>
+  <!-- <div class="grid md:grid-rows-6 max-h-screen" v-else>
+    <div class="md:rows-span-2 box grid md:grid-cols-12 mb-4">
       <div class="col-span-9 text-left">
         <h7 class="text-2xl font-semibold">demo-casper.tor.us</h7>
-        <h6 class="pb-10 ">Provider : Casper</h6>
+        <h6 class="pb-10">Provider : Casper</h6>
       </div>
       <div class="col-span-1 pt-2">
         <button class="copy-btn text-sm px-2 inline-flex items-center overflow-hidden">
@@ -241,7 +279,7 @@ const clearUiconsole = (): void => {
       </div>
     </div>
 
-    <div class="grid md:rows-span-4 md:grid-cols-5 height-fit mx-2">
+    <div class="grid md:rows-span-4 md:grid-cols-5 height-fit">
       <div class="grid md:col-span-2 md:grid-row-10 box text-left pl-5">
         <div class="grid md:grid-cols-2 row-span-1 gap-2 pt-10">
           <div class="col-span-1">
@@ -255,7 +293,9 @@ const clearUiconsole = (): void => {
           <div class="col-span-1">
             <span class="pl-2 text-left font-semibold">Latest Block</span><button @click="getLatestBlock" class="btn">Get Latest Block</button>
           </div>
-          <div class="md:col-span-1"><span class="pl-2 font-semibold">Signing</span><button @click="signMessage" class="btn">Sign Message</button></div>
+          <div class="md:col-span-1">
+            <span class="pl-2 font-semibold">Signing</span><button @click="signMessage" class="btn">Sign Message</button>
+          </div>
         </div>
         <div class="grid md:row-span-1 grid-row-5">
           <div class="md:row-span-1 pb-0 margin-negate">
@@ -281,13 +321,13 @@ const clearUiconsole = (): void => {
         <div><button class="clear-button" @click="clearUiconsole">Clear console</button></div>
       </div>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .box {
-  margin: 1%;
+  /* margin: 1%; */
   background: linear-gradient(0deg, #ffffff, #ffffff), #f3f3f4;
   border: 1px solid #f3f3f4;
   border-radius: 20px;
@@ -295,7 +335,7 @@ const clearUiconsole = (): void => {
 }
 
 .box-grey {
-  margin: 1%;
+  /* margin: 1%; */
   background: #f3f3f4;
   border: 1px solid #f3f3f4;
   border-radius: 20px;
@@ -331,7 +371,7 @@ a {
 }
 .btn {
   height: 40px;
-  margin: 5px;
+  margin: 0;
   /* background: none; */
   box-sizing: border-box;
   width: 100%;
@@ -390,17 +430,8 @@ a {
   border: 1px solid #0f1222;
 }
 .btn-login {
-  height: 40px;
-  margin: 5px;
-  width: 20em;
-  /* background: none; */
-  box-sizing: border-box;
-
-  background: #ffffff;
-  /* Shades of Grey/secondary-grey */
-
+  @apply h-12 w-80 bg-white rounded-3xl;
   border: 1px solid #6f717a;
   box-shadow: 2px 2px 12px rgba(3, 100, 255, 0.05);
-  border-radius: 24px;
 }
 </style>
