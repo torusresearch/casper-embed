@@ -52,7 +52,6 @@ onMounted(async () => {
       showTorusButton: true,
       network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
     });
-    console.log(torus.provider.chainId);
   } catch (error) {
     console.error(error);
   } finally {
@@ -196,6 +195,7 @@ const approveErc20Tokens = async (): Promise<void> => {
 };
 const uiConsole = (...args: unknown[]): void => {
   const el = document.querySelector("#console>p");
+  console.log(el);
   if (el) {
     el.innerHTML = `<span class="font-semibold">${args[0]}</span>` + `\n\n${JSON.stringify(args[1] || {}, null, 2)}`;
   }
@@ -206,139 +206,94 @@ const clearUiconsole = (): void => {
     el.innerHTML = "";
   }
 };
+function getAddress(address : string){
+  if (address.length < 11) {
+    return address
+  }
+  if (typeof address !== 'string') return ''
+  return `${address.slice(0, 5)}...${address.slice(-5)}`
+}
+function getNetworkType(){
+  return torus?.provider.chainId === '0x1'? 'mainnet' : 'testnet';
+}
 </script>
 
 <template>
   <div v-if="isLoading">loading...</div>
   <div class="grid text-center justify-center pt-20" v-else-if="!account">
     <h7 class="font-bold text-3xl">demo-casper.tor.us</h7>
-    <h6 class="pb-10 font-semibold">Build Environment : testing</h6>
+    <h6 class="pb-10 font-semibold text-[#595857]">Build Environment : testing</h6>
     <button @click="login" class="btn-login">Login with Private Key</button>
   </div>
   <div v-else>
-    <div class="flex">
-      <div>header</div>
-      <div class="ml-auto">
-        <button>1</button>
-        <button>1</button>
-        <button>1</button>
-      </div>
-    </div>
-    <div class="grid grid-cols-5 gap-7">
-      <div class="grid grid-cols-2 col-span-5 md:col-span-2 text-left gap-2 p-4">
-        <div class="col-span-1">
-          <div>title</div>
-          <div><button class="btn">Approve Erc20 Tokens</button></div>
-        </div>
-        <div class="col-span-1">
-          <div>title</div>
-          <div><button class="btn">Approve Erc20 Tokens</button></div>
-        </div>
-        <div class="col-span-2 text-left">
-          <div>Tokens</div>
-          <div class="grid grid-cols-2 gap-2">
-            <button class="btn">Approve Erc20 Tokens</button>
-            <button class="btn">Approve Erc20 Tokens</button>
-          </div>
-        </div>
-        <div class="col-span-1">
-          <div>title</div>
-          <div><button class="btn">1</button></div>
-        </div>
-        <div class="col-span-1">
-          <div>title</div>
-          <div><button class="btn">1</button></div>
-        </div>
-      </div>
-      <div class="col-span-3 bg-blue-500">2</div>
-    </div>
-  </div>
-  <!-- <div class="grid md:grid-rows-6 max-h-screen" v-else>
-    <div class="md:rows-span-2 box grid md:grid-cols-12 mb-4">
-      <div class="col-span-9 text-left">
+    <div class="flex box md:rows-span-2 m-6">
+      <div class="mt-7 ml-6">
         <h7 class="text-2xl font-semibold">demo-casper.tor.us</h7>
-        <h6 class="pb-10">Provider : Casper</h6>
+        <h6 class="pb-8 text-left">Provider : Casper</h6>
       </div>
-      <div class="col-span-1 pt-2">
-        <button class="copy-btn text-sm px-2 inline-flex items-center overflow-hidden">
-          <img src="../assets/copy.svg" class="pl-0 m-0" />
-          <span>{{ account }}</span>
+      <div class="ml-auto mt-7">
+        <button class="copy-btn">
+          <img class="pr-1" src="../assets/copy.svg"/>
+          <span class="pr-2">{{ getAddress(account) }}</span>
         </button>
-      </div>
-      <div class="col-span-1 pt-2">
-        <button type="button" class="wifi-btn text-sm px-5 inline-flex items-center">
-          <img src="../assets/wifi.svg" class="pr-3 pl-0" />
-          testnet
+        <button type="button" class="wifi-btn">
+          <img src="../assets/wifi.svg" />
+          <span class="font-semibold pl-2">{{ getNetworkType() }}</span>
         </button>
-      </div>
-      <div class="col-span-1">
-        <button type="button" @click="logout" class="btn text-sm px-5 inline-flex items-center">
+        <button type="button" @click="logout" class="btn-logout">
           <img src="../assets/logout.svg" class="pr-3 pl-0" />
           Logout
         </button>
       </div>
     </div>
-
-    <div class="grid md:rows-span-4 md:grid-cols-5 height-fit">
-      <div class="grid md:col-span-2 md:grid-row-10 box text-left pl-5">
-        <div class="grid md:grid-cols-2 row-span-1 gap-2 pt-10">
-          <div class="col-span-1">
-            <span class="pl-2 font-semibold">User Info</span><button @click="getUserInfo" class="btn">Get User Info</button>
-          </div>
-          <div class="col-span-1">
-            <span class="pl-2 font-semibold">Provider</span><button @click="changeProvider" class="btn">Change Provider</button>
+    <div class="grid grid-cols-5 gap-7 m-6 height-fit">
+      <div class="grid grid-cols-2 col-span-5 md:col-span-2 text-left gap-2 p-4 box md:pb-44">
+        <div class="col-span-1">
+          <div class="font-semibold">User Info</div>
+          <div><button class="btn" @click="getUserInfo">Get User Info</button></div>
+        </div>
+        <div class="col-span-1">
+          <div class="font-semibold">Provider</div>
+          <div><button class="btn" @click="changeProvider">Change Provider</button></div>
+        </div>
+        <div class="col-span-1">
+          <div class="font-semibold">Latest Block</div>
+          <div><button class="btn" @click="getLatestBlock">Get latest block</button></div>
+        </div>
+        <div class="col-span-1">
+          <div class="font-semibold">Signing</div>
+          <div><button class="btn" @click="signMessage">Sign message</button></div>
+        </div>
+        <div class="col-span-2 text-left">
+          <div class="font-semibold">Tokens</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="btn" @click="approveErc20Tokens">Approve Erc20 Tokens</button>
+            <button class="btn" @click="transferErc20Tokens">Transfer Erc20 Tokens</button>
           </div>
         </div>
-        <div class="grid md:grid-cols-2 row-span-1">
-          <div class="col-span-1">
-            <span class="pl-2 text-left font-semibold">Latest Block</span><button @click="getLatestBlock" class="btn">Get Latest Block</button>
-          </div>
-          <div class="md:col-span-1">
-            <span class="pl-2 font-semibold">Signing</span><button @click="signMessage" class="btn">Sign Message</button>
-          </div>
+        <div class="col-span-1">
+          <div class="font-semibold">CSPR</div>
+          <div><button class="btn" @click="sendCSPR">Send CSPR</button></div>
         </div>
-        <div class="grid md:row-span-1 grid-row-5">
-          <div class="md:row-span-1 pb-0 margin-negate">
-            <span class="pl-2 pb-0 font-semibold">Tokens</span>
-          </div>
-          <div class="grid md:grid-cols-2 row-span-4 pt-0">
-            <div class="col-span-1 pt-0"><button @click="approveErc20Tokens" class="btn">Approve Erc20 Tokens</button></div>
-            <div class="col-span-1"><button @click="transferErc20Tokens" class="btn">Transfer Erc20 Tokens</button></div>
-          </div>
-        </div>
-        <div class="grid md:row-span-1 md:grid-row-5">
-          <div class="md:row-span-1 pb-0 margin-negate">
-            <span class="pl-2 pb-0 font-semibold">CSPR</span>
-          </div>
-          <div class="grid md:grid-cols-2 md:row-span-4 pt-0">
-            <div class="col-span-1"><button @click="sendCSPR" class="btn">Send CSPR</button></div>
-          </div>
-        </div>
-        <div class="md:row-span-5"></div>
       </div>
-      <div class="grid md:col-span-3 box-grey overflow-hidden min-h-[200px]" id="console">
+      <div class="box-grey" id="console">
         <p style="white-space: pre-line"></p>
         <div><button class="clear-button" @click="clearUiconsole">Clear console</button></div>
       </div>
     </div>
-  </div> -->
+  </div>
 </template>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .box {
-  /* margin: 1%; */
-  background: linear-gradient(0deg, #ffffff, #ffffff), #f3f3f4;
+  @apply bg-white;
   border: 1px solid #f3f3f4;
   border-radius: 20px;
   box-shadow: 4px 4px 20px rgba(46, 91, 255, 0.1);
 }
 
 .box-grey {
-  /* margin: 1%; */
-  background: #f3f3f4;
+  @apply col-span-5 md:col-span-3 overflow-hidden min-h-[400px] bg-[#f3f3f4] rounded-3xl relative;
   border: 1px solid #f3f3f4;
-  border-radius: 20px;
   box-shadow: 4px 4px 20px rgba(46, 91, 255, 0.1);
 }
 h3 {
@@ -356,82 +311,50 @@ a {
   color: #42b983;
 }
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'DM Sans';
+  font-style: normal;
+  /* font-family: "Avenir", Helvetica, Arial, sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
 }
+
 #console {
   text-align: left;
   overflow: auto;
 }
 #console > p {
-  margin: 0.5em;
+  @apply m-2;
 }
 .btn {
-  height: 40px;
-  margin: 0;
-  /* background: none; */
-  box-sizing: border-box;
-  width: 100%;
-  background: #ffffff;
-  /* Shades of Grey/secondary-grey */
-
+  @apply h-11 w-full m-0 bg-white rounded-3xl text-[#6F717A] text-sm lg:text-base font-medium;
   border: 1px solid #6f717a;
-  box-shadow: 2px 2px 12px rgba(3, 100, 255, 0.05);
-  border-radius: 24px;
 }
 
 .copy-btn {
-  height: 24px;
-  margin-top: 5px;
-  width: 90%;
-  /* background: none; */
-  box-sizing: border-box;
-  /* Shades of Grey/secondary-grey */
-  background: #e9e9ea;
-
-  box-shadow: 2px 2px 12px rgba(3, 100, 255, 0.05);
-  border-radius: 24px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  @apply h-6 w-32 px-2 m-2 text-sm inline-flex items-center overflow-hidden bg-[#e9e9ea] rounded-3xl text-[#7F8FA4] leading-4 font-bold;
 }
 
 .wifi-btn {
-  height: 24px;
-  margin-top: 5px;
-  width: 90%;
-  /* background: none; */
-  box-sizing: border-box;
-  background: #cde0ff;
-  /* Shades of Grey/secondary-grey */
-  box-shadow: 2px 2px 12px rgba(3, 100, 255, 0.05);
-  border-radius: 24px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.height-fit {
-  height: 80vh;
-}
-
-.margin-negate {
-  margin-bottom: -0.6rem;
-}
-.clear-button {
-  position: absolute;
-  right: 2rem;
-  bottom: 3rem;
-  width: 116px;
-  height: 28px;
-  border-radius: 6px;
-  background: #f3f3f4;
-  border: 1px solid #0f1222;
+  @apply h-6 w-24 text-sm inline-flex items-center text-center pl-3 rounded-3xl bg-[#cde0ff];
 }
 .btn-login {
   @apply h-12 w-80 bg-white rounded-3xl;
   border: 1px solid #6f717a;
-  box-shadow: 2px 2px 12px rgba(3, 100, 255, 0.05);
+  
+}
+.btn-logout {
+  @apply h-12 w-32 bg-white rounded-3xl pl-6 m-2 text-sm inline-flex items-center;
+  border: 1px solid #F3F3F4;
+  
+}
+.clear-button {
+  @apply absolute md:fixed right-8 bottom-2 md:right-8 md:bottom-12 w-28 h-7 bg-[#f3f3f4] rounded-md;
+  border: 1px solid #0f1222;
+}
+.height-fit {
+  @apply min-h-fit;
+  height: 75vh;
 }
 </style>
