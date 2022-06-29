@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import Torus from "@toruslabs/casper-embed";
 import { CasperServiceByJsonRPC, CLPublicKey, CLValueBuilder, decodeBase16, DeployUtil, RuntimeArgs, verifyMessageSignature } from "casper-js-sdk";
 import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
+import copyToClipboard from "copy-to-clipboard";
 
 // Name of target chain.
 const DEPLOY_CHAIN_NAME = "casper-test";
@@ -40,10 +41,9 @@ const SUPPORTED_NETWORKS = {
 };
 
 let torus: Torus | null = null;
-
 const account = ref<string>("");
 const isLoading = ref<boolean>(false);
-
+let copied = false;
 onMounted(async () => {
   try {
     isLoading.value = true;
@@ -206,15 +206,23 @@ const clearUiconsole = (): void => {
     el.innerHTML = "";
   }
 };
-function getAddress(address : string){
+function getAddress(address: string) {
   if (address.length < 11) {
-    return address
+    return address;
   }
-  if (typeof address !== 'string') return ''
-  return `${address.slice(0, 5)}...${address.slice(-5)}`
+  if (typeof address !== "string") return "";
+  return `${address.slice(0, 5)}...${address.slice(-5)}`;
 }
-function getNetworkType(){
-  return torus?.provider.chainId === '0x1'? 'mainnet' : 'testnet';
+function getNetworkType() {
+  return torus?.provider.chainId === "0x1" ? "mainnet" : "testnet";
+}
+
+function copyToClip(account: string) {
+  copied = true;
+  copyToClipboard(account);
+  // setTimeout(() => {
+  //   copied = false
+  // }, 300000);
 }
 </script>
 
@@ -232,9 +240,17 @@ function getNetworkType(){
         <h6 class="pb-8 text-left">Provider : Casper</h6>
       </div>
       <div class="ml-auto mt-7">
-        <button class="copy-btn">
-          <img class="pr-1" src="../assets/copy.svg"/>
-          <span class="pr-2">{{ getAddress(account) }}</span>
+        <button
+          type="button"
+          class="copy-btn"
+          @click="
+            () => {
+              copyToClip(account);
+            }
+          "
+        >
+          <img class="pr-1" src="../assets/copy.svg" />
+          <span class="pr-2">{{ copied? "Copied!" : getAddress(account) }}</span>
         </button>
         <button type="button" class="wifi-btn">
           <img src="../assets/wifi.svg" />
@@ -311,7 +327,7 @@ a {
   color: #42b983;
 }
 #app {
-  font-family: 'DM Sans';
+  font-family: "DM Sans";
   font-style: normal;
   /* font-family: "Avenir", Helvetica, Arial, sans-serif; */
   -webkit-font-smoothing: antialiased;
@@ -342,12 +358,10 @@ a {
 .btn-login {
   @apply h-12 w-80 bg-white rounded-3xl;
   border: 1px solid #6f717a;
-  
 }
 .btn-logout {
   @apply h-12 w-32 bg-white rounded-3xl pl-6 m-2 text-sm inline-flex items-center;
-  border: 1px solid #F3F3F4;
-  
+  border: 1px solid #f3f3f4;
 }
 .clear-button {
   @apply absolute md:fixed right-8 bottom-2 md:right-8 md:bottom-12 w-28 h-7 bg-[#f3f3f4] rounded-md;

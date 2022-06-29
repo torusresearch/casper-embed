@@ -11,6 +11,7 @@
   "dependencies": {
     "@toruslabs/casper-embed": "file:../../",
     "casper-js-sdk": "^2.8.0",
+    "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.20.2",
     "vue": "^3.2.6"
   },
