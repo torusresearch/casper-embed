@@ -43,7 +43,7 @@ const SUPPORTED_NETWORKS = {
 let torus: Torus | null = null;
 const account = ref<string>("");
 const isLoading = ref<boolean>(false);
-let copied = false;
+const copied = ref<boolean>(false);
 onMounted(async () => {
   try {
     isLoading.value = true;
@@ -218,11 +218,11 @@ function getNetworkType() {
 }
 
 function copyToClip(account: string) {
-  copied = true;
+  copied.value = true;
   copyToClipboard(account);
-  // setTimeout(() => {
-  //   copied = false
-  // }, 300000);
+  setTimeout(() => {
+    copied.value = false
+  }, 500);
 }
 </script>
 
@@ -250,7 +250,7 @@ function copyToClip(account: string) {
           "
         >
           <img class="pr-1" src="../assets/copy.svg" />
-          <span class="pr-2">{{ copied? "Copied!" : getAddress(account) }}</span>
+          <span>{{ copied? "Copied!" : getAddress(account) }}</span>
         </button>
         <button type="button" class="wifi-btn">
           <img src="../assets/wifi.svg" />
@@ -349,7 +349,7 @@ a {
 }
 
 .copy-btn {
-  @apply h-6 w-32 px-2 m-2 text-sm inline-flex items-center overflow-hidden bg-[#e9e9ea] rounded-3xl text-[#7F8FA4] leading-4 font-bold;
+  @apply h-6 px-2 m-2 text-sm inline-flex items-center overflow-hidden bg-[#e9e9ea] rounded-3xl text-[#7F8FA4] leading-4 font-bold;
 }
 
 .wifi-btn {
