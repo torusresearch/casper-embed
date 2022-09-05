@@ -1,15 +1,9 @@
-
-
-# Casper Embed (by Web3Auth)
+# Casper Embed (by [Web3Auth](https://web3auth.io/docs))
 
 [![npm version](https://badge.fury.io/js/@toruslabs%2Fcasper-embed.svg)](https://badge.fury.io/js/@toruslabs%2Fcasper-embed)
 ![npm](https://img.shields.io/npm/dw/@toruslabs/casper-embed)
 
 > [Web3Auth](https://web3auth.io) is where passwordless auth meets non-custodial key infrastructure for Web3 apps and wallets. By aggregating OAuth (Google, Twitter, Discord) logins, different wallets and innovative Multi Party Computation (MPC) - Web3Auth provides a seamless login experience to every user on your application.
-
-## 📖 Documentation
-
-Checkout the official [Torus Documentation for Casper Embed](https://docs.tor.us/solana-wallet/api-reference/installation) to get started.
 
 ## 🔗 Installation
 
