@@ -221,13 +221,27 @@ function copyToClip(account: string) {
   copied.value = true;
   copyToClipboard(account);
   setTimeout(() => {
-    copied.value = false
+    copied.value = false;
   }, 500);
 }
 </script>
 
 <template>
-  <div v-if="isLoading">loading...</div>
+  <div v-if="isLoading" class="flex justify-center items-center h-screen">
+    <svg
+      class="w-20 h-20 text-[#87cefa] animate-spin left-1/2 -ml-2.5"
+      fill="none"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path
+        class="opacity-75"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  </div>
   <div class="grid text-center justify-center pt-20" v-else-if="!account">
     <h7 class="font-bold text-3xl">demo-casper.tor.us</h7>
     <h6 class="pb-10 font-semibold text-[#595857]">Build Environment : testing</h6>
@@ -250,7 +264,7 @@ function copyToClip(account: string) {
           "
         >
           <img class="pr-1" src="../assets/copy.svg" />
-          <span>{{ copied? "Copied!" : getAddress(account) }}</span>
+          <span>{{ copied ? "Copied!" : getAddress(account) }}</span>
         </button>
         <button type="button" class="wifi-btn">
           <img src="../assets/wifi.svg" />
@@ -294,7 +308,7 @@ function copyToClip(account: string) {
       </div>
       <div class="box-grey" id="console">
         <p style="white-space: pre-line"></p>
-        <div><button class="clear-button" @click="clearUiconsole">Clear console</button></div>
+        <button class="clear-button" @click="clearUiconsole">Clear console</button>
       </div>
     </div>
   </div>
@@ -308,7 +322,7 @@ function copyToClip(account: string) {
 }
 
 .box-grey {
-  @apply col-span-5 md:col-span-3 overflow-hidden min-h-[400px] bg-[#f3f3f4] rounded-3xl relative;
+  @apply col-span-5 md:col-span-3 overflow-auto min-h-[400px] bg-[#f3f3f4] rounded-3xl;
   border: 1px solid #f3f3f4;
   box-shadow: 4px 4px 20px rgba(46, 91, 255, 0.1);
 }
@@ -341,7 +355,7 @@ a {
   overflow: auto;
 }
 #console > p {
-  @apply m-2;
+  @apply m-2 p-2;
 }
 .btn {
   @apply h-11 w-full m-0 bg-white rounded-3xl text-[#6F717A] text-sm lg:text-base font-medium;
@@ -364,11 +378,15 @@ a {
   border: 1px solid #f3f3f4;
 }
 .clear-button {
-  @apply absolute md:fixed right-8 bottom-2 md:right-8 md:bottom-12 w-28 h-7 bg-[#f3f3f4] rounded-md;
+  @apply fixed md:absolute w-28 h-7 bg-[#f3f3f4] rounded-md right-2 bottom-2;
   border: 1px solid #0f1222;
 }
+/* .clear-div {
+
+} */
 .height-fit {
-  @apply min-h-fit;
+  @apply max-h-fit relative;
   height: 75vh;
 }
+
 </style>
