@@ -42,7 +42,7 @@ await torus.login();
 
 ## 🩹 Examples
 
-Checkout the example of `Casper Embed` in our [example repository](https://github.com/torusresearch/casper-embed/tree/master/examples/vue-app)
+Checkout the example of `Casper Embed` in our [example directory.](https://github.com/torusresearch/casper-embed/tree/master/examples/vue-app)
 
 ## 🌐 Demo
 
