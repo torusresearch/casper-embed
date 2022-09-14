@@ -42,11 +42,11 @@ await torus.login();
 
 ## 🩹 Examples
 
-Checkout the examples for your preferred blockchain and platform in our [examples repository](https://github.com/Web3Auth/examples/tree/main/web-core-sdk)
+Checkout the example of `Casper Embed` in our [example repository](https://github.com/torusresearch/casper-embed/tree/master/examples/vue-app)
 
 ## 🌐 Demo
 
-Checkout the [Web3Auth Demo](https://demo-app.web3auth.io/) to see how Web3Auth can be used in your application.
+Checkout the [Casper Embed Demo](https://demo-casper.tor.us/) to see how `Casper Embed` can be used in your application.
 
 ## 💬 Troubleshooting and Discussions
 
