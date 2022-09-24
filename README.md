@@ -1,7 +1,58 @@
-# Torus Embed — New Frictionless login for Dapps
+# Casper Embed (by [Web3Auth](https://web3auth.io/docs))
 
-[![npm version](https://badge.fury.io/js/%40toruslabs%2Fcasper-embed.svg)](https://badge.fury.io/js/%40toruslabs%2Fcasper-embed)
+[![npm version](https://badge.fury.io/js/@toruslabs%2Fcasper-embed.svg)](https://badge.fury.io/js/@toruslabs%2Fcasper-embed)
 ![npm](https://img.shields.io/npm/dw/@toruslabs/casper-embed)
+
+> [Web3Auth](https://web3auth.io) is where passwordless auth meets non-custodial key infrastructure for Web3 apps and wallets. By aggregating OAuth (Google, Twitter, Discord) logins, different wallets and innovative Multi Party Computation (MPC) - Web3Auth provides a seamless login experience to every user on your application.
+
+## 🔗 Installation
+
+```shell
+npm install --save @toruslabs/casper-embed
+```
+
+## ⚡ Quick Start
+
+### Get your Client ID from Web3Auth Dashboard
+
+Hop on to the [Web3Auth Dashboard](https://dashboard.web3auth.io/) and create a new Torus Wallet project. Use the Client ID of the project to start your integration.
+
+![Web3Auth Dashboard - Torus Wallets](https://user-images.githubusercontent.com/6962565/187207779-9420f4ad-17e8-43fa-b578-0bc64f50e4d3.png)
+
+## Initialize & Login
+
+```ts
+import Torus from "@toruslabs/casper-embed";
+
+const torus = new Torus();
+await torus.init({
+  buttonPosition: "top-left", // default: bottom-left
+  buildEnv: "production", // default: production
+  enableLogging: true, // default: false
+  showTorusButton: false, // default: true
+  whitelabel: {
+    theme: { isDark: true, colors: { torusBrand1: "#00a8ff" } },
+    logoDark: "https://web3auth.io/images/w3a-L-Favicon-1.svg",
+    logoLight: "https://web3auth.io/images/w3a-D-Favicon-1.svg",
+    topupHide: true,
+  },
+});
+await torus.login();
+```
+
+## 🩹 Examples
+
+Checkout the example of `Casper Embed` in our [example directory.](https://github.com/torusresearch/casper-embed/tree/master/examples/vue-app)
+
+## 🌐 Demo
+
+Checkout the [Casper Embed Demo](https://demo-casper.tor.us/) to see how `Casper Embed` can be used in your application.
+
+## 💬 Troubleshooting and Discussions
+
+- Have a look at our [GitHub Discussions](https://github.com/Web3Auth/Web3Auth/discussions?discussions_q=sort%3Atop) to see if anyone has any questions or issues you might be having.
+- Checkout our [Troubleshooting Documentation Page](https://web3auth.io/docs/troubleshooting) to know the common issues and solutions
+- Join our [Discord](https://discord.gg/web3auth) to join our community and get private integration support or help with your integration.
 
 ## Introduction
 
@@ -9,13 +60,9 @@ This module generates the javascript to include in a DApp via a script tag.
 It creates an iframe that loads the Torus page and sets up communication streams between
 the iframe and the DApp javascript context.
 
-Please refer to docs for API Reference available [here](https://docs.tor.us/wallet/api-reference/installation) or [change log](https://docs.tor.us/torus-wallet/changelog).
-
 ## Features
 
 - Typescript compatible. Includes Type definitions
-
-Please refer to docs for API Reference available [here](https://docs.tor.us/wallet/api-reference/installation) or [change log](https://docs.tor.us/torus-wallet/changelog).
 
 ## Installation
 
@@ -83,7 +130,7 @@ npm run test:e2e:headful
 npm run test:build-embed
 ```
 
-entry-point: `index.js`
+entry-point: `index.ts`
 
 ## Requirements
 
@@ -93,3 +140,4 @@ entry-point: `index.js`
 ## License
 
 `casper-embed` is [MIT Licensed](LICENSE)
+
