@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import Torus from "@toruslabs/casper-embed";
 import { CasperServiceByJsonRPC, CLPublicKey, CLValueBuilder, decodeBase16, DeployUtil, RuntimeArgs, verifyMessageSignature } from "casper-js-sdk";
 import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
+import copyToClipboard from "copy-to-clipboard";
 
 // Name of target chain.
 const DEPLOY_CHAIN_NAME = "casper-test";
@@ -40,10 +41,9 @@ const SUPPORTED_NETWORKS = {
 };
 
 let torus: Torus | null = null;
-
 const account = ref<string>("");
 const isLoading = ref<boolean>(false);
-
+const copied = ref<boolean>(false);
 onMounted(async () => {
   try {
     isLoading.value = true;
@@ -66,18 +66,19 @@ const login = async () => {
 
 const changeProvider = async () => {
   const providerRes = await torus?.setProvider(SUPPORTED_NETWORKS[CHAINS.CASPER_MAINNET]);
-  uiConsole("provider res", providerRes);
+  uiConsole("Provider Response", providerRes);
 };
 
 const getLatestBlock = async () => {
   const casperService = new CasperServiceByJsonRPC(torus?.provider as SafeEventEmitterProvider);
   const latestBlock = await casperService.getLatestBlockInfo();
-  uiConsole("latest block", latestBlock);
+  uiConsole("Latest Block", latestBlock);
 };
 
 const getUserInfo = async () => {
+  console.log(torus?.provider);
   const userInfo = await torus?.getUserInfo();
-  uiConsole("userInfo", userInfo);
+  uiConsole("User Info", userInfo);
 };
 
 const signMessage = async () => {
@@ -90,7 +91,7 @@ const signMessage = async () => {
     if (res?.signature) {
       const pubKey = CLPublicKey.fromHex(account.value);
       const isVerified = verifyMessageSignature(pubKey, message, res?.signature);
-      uiConsole(`signature verified: ${isVerified}`, res.signature);
+      uiConsole(`Signature verified: ${isVerified}`, res.signature);
     } else {
       uiConsole("signature", "failed to sign message");
     }
@@ -194,39 +195,137 @@ const approveErc20Tokens = async (): Promise<void> => {
 };
 const uiConsole = (...args: unknown[]): void => {
   const el = document.querySelector("#console>p");
+  console.log(el);
   if (el) {
-    el.innerHTML = JSON.stringify(args || {}, null, 2);
+    el.innerHTML = `<span class="font-semibold">${args[0]}</span>` + `\n\n${JSON.stringify(args[1] || {}, null, 2)}`;
   }
 };
+const clearUiconsole = (): void => {
+  const el = document.querySelector("#console>p");
+  if (el) {
+    el.innerHTML = "";
+  }
+};
+function getAddress(address: string) {
+  if (address.length < 11) {
+    return address;
+  }
+  if (typeof address !== "string") return "";
+  return `${address.slice(0, 5)}...${address.slice(-5)}`;
+}
+function getNetworkType() {
+  return torus?.provider.chainId === "0x1" ? "mainnet" : "testnet";
+}
+
+function copyToClip(account: string) {
+  copied.value = true;
+  copyToClipboard(account);
+  setTimeout(() => {
+    copied.value = false;
+  }, 500);
+}
 </script>
 
 <template>
-  <div v-if="isLoading">loading...</div>
-  <div class="hello" v-else-if="!account">
-    <button @click="login">Login</button>
+  <div v-if="isLoading" class="flex justify-center items-center h-screen">
+    <svg
+      class="w-20 h-20 text-[#87cefa] animate-spin left-1/2 -ml-2.5"
+      fill="none"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path
+        class="opacity-75"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        fill="currentColor"
+      ></path>
+    </svg>
   </div>
-  <div class="hello" v-else>
-    Logged in with {{ account }}
-    <div>
-      <button @click="getUserInfo">Get User Info</button>
-      <button @click="changeProvider">Change Provider</button>
-      <button @click="getLatestBlock">Get Latest Block</button>
-      <button @click="signMessage">Sign Message</button>
-      <button @click="sendCSPR">Send CSPR</button>
-      <button @click="approveErc20Tokens">Approve Erc20 Tokens</button>
-      <button @click="transferErc20Tokens">Transfer Erc20 Tokens</button>
-      <button @click="logout">Logout</button>
+  <div class="grid text-center justify-center pt-20" v-else-if="!account">
+    <h7 class="font-bold text-3xl">demo-casper.tor.us</h7>
+    <h6 class="pb-10 font-semibold text-[#595857]">Build Environment : testing</h6>
+    <button @click="login" class="btn-login">Login with Private Key</button>
+  </div>
+  <div v-else>
+    <div class="flex box md:rows-span-2 m-6">
+      <div class="mt-7 ml-6">
+        <h7 class="text-2xl font-semibold">demo-casper.tor.us</h7>
+        <h6 class="pb-8 text-left">Provider : Casper</h6>
+      </div>
+      <div class="ml-auto mt-7">
+        <button
+          type="button"
+          class="copy-btn"
+          @click="
+            () => {
+              copyToClip(account);
+            }
+          "
+        >
+          <img class="pr-1" src="../assets/copy.svg" />
+          <span>{{ copied ? "Copied!" : getAddress(account) }}</span>
+        </button>
+        <button type="button" class="wifi-btn">
+          <img src="../assets/wifi.svg" />
+          <span class="font-semibold pl-2">{{ getNetworkType() }}</span>
+        </button>
+        <button type="button" @click="logout" class="btn-logout">
+          <img src="../assets/logout.svg" class="pr-3 pl-0" />
+          Logout
+        </button>
+      </div>
     </div>
-    <div>
-      <div id="console" style="white-space: pre-line">
+    <div class="grid grid-cols-5 gap-7 m-6 height-fit">
+      <div class="grid grid-cols-2 col-span-5 md:col-span-2 text-left gap-2 p-4 box md:pb-44">
+        <div class="col-span-1">
+          <div class="font-semibold">User Info</div>
+          <div><button class="btn" @click="getUserInfo">Get User Info</button></div>
+        </div>
+        <div class="col-span-1">
+          <div class="font-semibold">Provider</div>
+          <div><button class="btn" @click="changeProvider">Change Provider</button></div>
+        </div>
+        <div class="col-span-1">
+          <div class="font-semibold">Latest Block</div>
+          <div><button class="btn" @click="getLatestBlock">Get latest block</button></div>
+        </div>
+        <div class="col-span-1">
+          <div class="font-semibold">Signing</div>
+          <div><button class="btn" @click="signMessage">Sign message</button></div>
+        </div>
+        <div class="col-span-2 text-left">
+          <div class="font-semibold">Tokens</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="btn" @click="approveErc20Tokens">Approve Erc20 Tokens</button>
+            <button class="btn" @click="transferErc20Tokens">Transfer Erc20 Tokens</button>
+          </div>
+        </div>
+        <div class="col-span-1">
+          <div class="font-semibold">CSPR</div>
+          <div><button class="btn" @click="sendCSPR">Send CSPR</button></div>
+        </div>
+      </div>
+      <div class="box-grey" id="console">
         <p style="white-space: pre-line"></p>
+        <button class="clear-button" @click="clearUiconsole">Clear console</button>
       </div>
     </div>
   </div>
 </template>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.box {
+  @apply bg-white;
+  border: 1px solid #f3f3f4;
+  border-radius: 20px;
+  box-shadow: 4px 4px 20px rgba(46, 91, 255, 0.1);
+}
+
+.box-grey {
+  @apply col-span-5 md:col-span-3 overflow-auto min-h-[400px] bg-[#f3f3f4] rounded-3xl;
+  border: 1px solid #f3f3f4;
+  box-shadow: 4px 4px 20px rgba(46, 91, 255, 0.1);
+}
 h3 {
   margin: 40px 0 0;
 }
@@ -242,30 +341,52 @@ a {
   color: #42b983;
 }
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: "DM Sans";
+  font-style: normal;
+  /* font-family: "Avenir", Helvetica, Arial, sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
+
 #console {
-  border: 2px solid black;
-  height: 300px;
-  padding: 2px;
   text-align: left;
-  width: calc(100% - 20px);
-  border-radius: 5px;
-  margin-top: 20px;
-  margin-bottom: 80px;
+  overflow: auto;
 }
 #console > p {
-  margin: 0.5em;
+  @apply m-2 p-2;
 }
-button {
-  height: 25px;
-  margin: 5px;
-  background: none;
-  border-radius: 5px;
+.btn {
+  @apply h-11 w-full m-0 bg-white rounded-3xl text-[#6F717A] text-sm lg:text-base font-medium;
+  border: 1px solid #6f717a;
 }
+
+.copy-btn {
+  @apply h-6 px-2 m-2 text-sm inline-flex items-center overflow-hidden bg-[#e9e9ea] rounded-3xl text-[#7F8FA4] leading-4 font-bold;
+}
+
+.wifi-btn {
+  @apply h-6 w-24 text-sm inline-flex items-center text-center pl-3 rounded-3xl bg-[#cde0ff];
+}
+.btn-login {
+  @apply h-12 w-80 bg-white rounded-3xl;
+  border: 1px solid #6f717a;
+}
+.btn-logout {
+  @apply h-12 w-32 bg-white rounded-3xl pl-6 m-2 text-sm inline-flex items-center;
+  border: 1px solid #f3f3f4;
+}
+.clear-button {
+  @apply fixed md:absolute w-28 h-7 bg-[#f3f3f4] rounded-md right-2 bottom-2;
+  border: 1px solid #0f1222;
+}
+/* .clear-div {
+
+} */
+.height-fit {
+  @apply max-h-fit relative;
+  height: 75vh;
+}
+
 </style>
