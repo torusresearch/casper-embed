@@ -111,7 +111,7 @@ const sendCSPR = async () => {
   try {
     const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8");
     const senderKey = CLPublicKey.fromHex(account.value);
-    let deploy = DeployUtil.makeDeploy(
+    const deploy = DeployUtil.makeDeploy(
       new DeployUtil.DeployParams(senderKey, DEPLOY_CHAIN_NAME, 1, 1800000),
       DeployUtil.ExecutableDeployItem.newTransfer(
         2500000000, // 2.5 cspr
@@ -145,7 +145,7 @@ const transferErc20Tokens = async () => {
   const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b";
   const contractHashAsByteArray = decodeBase16(contractHash);
 
-  let deploy = DeployUtil.makeDeploy(
+  const deploy = DeployUtil.makeDeploy(
     new DeployUtil.DeployParams(senderKey, DEPLOY_CHAIN_NAME, DEPLOY_GAS_PRICE, DEPLOY_TTL_MS),
     DeployUtil.ExecutableDeployItem.newStoredContractByHash(
       contractHashAsByteArray,
@@ -176,7 +176,7 @@ const approveErc20Tokens = async (): Promise<void> => {
   const contractHash = "9EccB15D2001D57c971185D05be97Ac43C2E2bDA5ACd13D47d681B23a0A5979b";
   const contractHashAsByteArray = decodeBase16(contractHash);
 
-  let deploy = DeployUtil.makeDeploy(
+  const deploy = DeployUtil.makeDeploy(
     new DeployUtil.DeployParams(spenderCLPubKey, DEPLOY_CHAIN_NAME, DEPLOY_GAS_PRICE, DEPLOY_TTL_MS),
     DeployUtil.ExecutableDeployItem.newStoredContractByHash(
       contractHashAsByteArray,
