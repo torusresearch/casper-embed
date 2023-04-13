@@ -1,26 +1,25 @@
 <template>
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <Dashboard />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import Dashboard from "./components/Dashboard";
 
 export default defineComponent({
   name: "App",
   components: {
-    HelloWorld,
+    Dashboard,
   },
 });
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+html,
+body,
+* {
+  padding: 0;
+  margin: 0;
+  font-family: "Poppins", sans-serif !important;
 }
 </style>

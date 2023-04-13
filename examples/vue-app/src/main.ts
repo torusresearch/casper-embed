@@ -1,4 +1,8 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from "vue";
+import "@toruslabs/vue-components/dist/style.css";
+import { createIcons } from "@toruslabs/vue-components";
+import App from "./App.vue";
 
-createApp(App).mount('#app')
+const app = createApp(App);
+
+app.use(createIcons()).mount("#app");
