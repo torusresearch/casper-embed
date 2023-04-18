@@ -249,7 +249,7 @@ const copyAccountAddress = () => {
     <h1 class="login-heading">demo-casper.tor.us</h1>
     <h3 class="login-subheading">Build Environment : testing</h3>
     <div class="login-btn">
-      <Button @on-click="login">Login with Private Key</Button>
+      <Button @on-click="login">Login</Button>
     </div>
   </div>
   <!-- Dashboard -->
