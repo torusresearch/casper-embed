@@ -27,7 +27,7 @@
     "@babel/runtime": "7.x"
   },
   "dependencies": {
-    "@toruslabs/base-controllers": "^3.0.0",
+    "@toruslabs/base-controllers": "^3.0.1",
     "@toruslabs/http-helpers": "^4.0.0",
     "@toruslabs/openlogin-jrpc": "^4.4.0",
     "eth-rpc-errors": "^4.0.3",
