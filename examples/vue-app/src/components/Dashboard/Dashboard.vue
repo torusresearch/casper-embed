@@ -47,6 +47,7 @@ let torus: Torus | null = null;
 const account = ref<string>("");
 const isLoading = ref<boolean>(false);
 const isCopied = ref(false);
+const isExpanded = ref(true);
 
 onMounted(async () => {
   try {
@@ -256,37 +257,46 @@ const copyAccountAddress = () => {
   <div v-else class="dashboard-container">
     <!-- Dashboard Header -->
     <div class="dashboard-header">
-      <div>
+      <div class="heading-mb">
         <h1 class="dashboard-heading">demo-casper.tor.us</h1>
         <p class="dashboard-subheading">Provider : casper</p>
       </div>
       <div class="dashboard-action-container">
-        <button class="dashboard-action-address" @click.stop="copyAccountAddress" :title="account">
-          <Icon :name="isCopied ? 'tor-check-circle-solid-icon' : 'tor-document-duplicate-solid-icon'" size="14" />{{ formatedAccountAddress }}
-        </button>
-        <div class="dashboard-action-badge"><Icon name="tor-wifi-solid-icon" size="14" /> mainnet</div>
+        <div class="header-mb">
+          <button class="dashboard-action-address" @click.stop="copyAccountAddress" :title="account">
+            <Icon :name="isCopied ? 'tor-check-circle-solid-icon' : 'tor-document-duplicate-solid-icon'" size="14" />{{ formatedAccountAddress }}
+          </button>
+          <div class="dashboard-action-badge"><Icon name="tor-wifi-solid-icon" size="14" /> mainnet</div>
+        </div>
         <button class="dashboard-action-logout" @click.stop="logout">
-          <img :src="require('@/assets/logout.svg')" alt="logout" height="20" width="20" /> Logout
+          <img class="logout-img" :src="require('@/assets/logout.svg')" alt="logout" height="20" width="20" />
+          Logout
         </button>
       </div>
     </div>
     <!-- Dashboard Action Container -->
     <div class="dashboard-details-container">
       <div class="dashboard-details-btn-container">
-        <div class="flex-row">
-          <Button @on-click="getUserInfo" label="User info">Get User Info</Button>
-          <Button @on-click="changeProvider" label="Provider">Change Provider</Button>
+        <div class="details-heading expanded-icon">
+          <span>Casper Specific Info</span>
+          <img alt="down" src="../../assets/down.svg" @click="isExpanded = !isExpanded" />
         </div>
-        <div class="flex-row">
-          <Button @on-click="getLatestBlock" label="Latest Block">Get latest block</Button>
-          <Button @on-click="signMessage" label="Signing">Sign message</Button>
-        </div>
-        <div class="flex-row">
-          <Button @on-click="approveErc20Tokens" label="Tokens" classes="detail-btn">Approve Erc20 Tokens</Button>
-          <Button @on-click="transferErc20Tokens" class="token-btn">Transfer Erc20 Tokens</Button>
-        </div>
-        <div class="flex-row">
-          <Button @on-click="sendCSPR" label="CSPR">Send CSPR</Button>
+        <div v-show="isExpanded">
+          <div class="flex-row">
+            <Button @on-click="getUserInfo" label="User info">Get User Info</Button>
+            <Button @on-click="changeProvider" label="Provider">Change Provider</Button>
+          </div>
+          <div class="flex-row">
+            <Button @on-click="getLatestBlock" label="Latest Block">Get latest block</Button>
+            <Button @on-click="signMessage" label="Signing">Sign message</Button>
+          </div>
+          <div class="flex-row">
+            <Button @on-click="approveErc20Tokens" label="Tokens" classes="detail-btn">Approve Erc20 Tokens</Button>
+            <Button @on-click="transferErc20Tokens" class="token-btn">Transfer Erc20 Tokens</Button>
+          </div>
+          <div class="flex-row">
+            <Button @on-click="sendCSPR" label="CSPR">Send CSPR</Button>
+          </div>
         </div>
       </div>
       <!-- Dashboard Console Container -->
