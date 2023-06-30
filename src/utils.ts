@@ -1,5 +1,5 @@
+import { rpcErrors } from "@metamask/rpc-errors";
 import { JRPCMiddleware, SafeEventEmitter } from "@toruslabs/openlogin-jrpc";
-import { ethErrors } from "eth-rpc-errors";
 import { LogLevelDesc } from "loglevel";
 
 import config from "./config";
@@ -17,9 +17,9 @@ export function createErrorMiddleware(): JRPCMiddleware<unknown, unknown> {
   return (req, res, next) => {
     // json-rpc-engine will terminate the request when it notices this error
     if (typeof req.method !== "string" || !req.method) {
-      res.error = ethErrors.rpc.invalidRequest({
+      res.error = rpcErrors.invalidRequest({
         message: `The request 'method' must be a non-empty string.`,
-        data: req,
+        data: { ...(req || {}), cause: `The request 'method' must be a non-empty string.` },
       });
     }
 

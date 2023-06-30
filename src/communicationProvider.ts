@@ -1,11 +1,6 @@
-import {
-  COMMUNICATION_JRPC_METHODS,
-  COMMUNICATION_NOTIFICATIONS,
-  CommunicationWalletProviderState,
-  RequestArguments,
-} from "@toruslabs/base-controllers";
-import { JRPCRequest } from "@toruslabs/openlogin-jrpc";
-import { EthereumRpcError } from "eth-rpc-errors";
+import { EthereumProviderError } from "@metamask/rpc-errors";
+import { COMMUNICATION_JRPC_METHODS, COMMUNICATION_NOTIFICATIONS, CommunicationWalletProviderState } from "@toruslabs/base-controllers";
+import { JRPCRequest, RequestArguments } from "@toruslabs/openlogin-jrpc";
 import type { Duplex } from "readable-stream";
 
 import BaseProvider from "./baseProvider";
@@ -282,13 +277,13 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
 
       let error: Error;
       if (isRecoverable) {
-        error = new EthereumRpcError(
+        error = new EthereumProviderError(
           1013, // Try again later
           errorMessage || messages.errors.disconnected()
         );
         log.debug(error);
       } else {
-        error = new EthereumRpcError(
+        error = new EthereumProviderError(
           1011, // Internal error
           errorMessage || messages.errors.permanentlyDisconnected()
         );

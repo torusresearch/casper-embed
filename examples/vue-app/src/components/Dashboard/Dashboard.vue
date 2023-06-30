@@ -4,7 +4,7 @@ import { Icon } from "@toruslabs/vue-components";
 import Torus from "@toruslabs/casper-embed";
 
 import { CasperServiceByJsonRPC, CLPublicKey, CLValueBuilder, decodeBase16, DeployUtil, RuntimeArgs, verifyMessageSignature } from "casper-js-sdk";
-import { SafeEventEmitterProvider } from "@toruslabs/base-controllers";
+import { SafeEventEmitterProvider } from "@toruslabs/openlogin-jrpc";
 
 import Button from "../Button";
 

@@ -1,6 +1,6 @@
-import { InPageWalletProviderState, PROVIDER_JRPC_METHODS, PROVIDER_NOTIFICATIONS, RequestArguments } from "@toruslabs/base-controllers";
-import { JRPCRequest, JRPCSuccess } from "@toruslabs/openlogin-jrpc";
-import { EthereumRpcError } from "eth-rpc-errors";
+import { EthereumProviderError } from "@metamask/rpc-errors";
+import { InPageWalletProviderState, PROVIDER_JRPC_METHODS, PROVIDER_NOTIFICATIONS } from "@toruslabs/base-controllers";
+import { JRPCRequest, JRPCSuccess, RequestArguments } from "@toruslabs/openlogin-jrpc";
 import dequal from "fast-deep-equal";
 import type { Duplex } from "readable-stream";
 
@@ -170,13 +170,13 @@ class TorusInPageProvider extends BaseProvider<InPageProviderState> {
 
       let error: Error;
       if (isRecoverable) {
-        error = new EthereumRpcError(
+        error = new EthereumProviderError(
           1013, // Try again later
           errorMessage || messages.errors.disconnected()
         );
         log.debug(error);
       } else {
-        error = new EthereumRpcError(
+        error = new EthereumProviderError(
           1011, // Internal error
           errorMessage || messages.errors.permanentlyDisconnected()
         );

@@ -1,4 +1,5 @@
-import { createLoggerMiddleware, RequestArguments, SafeEventEmitterProvider, SendCallBack } from "@toruslabs/base-controllers";
+import { rpcErrors } from "@metamask/rpc-errors";
+import { createLoggerMiddleware } from "@toruslabs/base-controllers";
 import {
   createIdRemapMiddleware,
   createStreamMiddleware,
@@ -7,10 +8,12 @@ import {
   JRPCRequest,
   JRPCResponse,
   ObjectMultiplex,
+  RequestArguments,
   SafeEventEmitter,
+  SafeEventEmitterProvider,
+  SendCallBack,
   Stream,
 } from "@toruslabs/openlogin-jrpc";
-import { ethErrors } from "eth-rpc-errors";
 import { isDuplexStream } from "is-stream";
 import pump from "pump";
 import type { Duplex } from "readable-stream";
@@ -98,25 +101,25 @@ abstract class BaseProvider<U extends BaseProviderState> extends SafeEventEmitte
    */
   async request<T, P>(args: RequestArguments<T>): Promise<Maybe<P>> {
     if (!args || typeof args !== "object" || Array.isArray(args)) {
-      throw ethErrors.rpc.invalidRequest({
+      throw rpcErrors.invalidRequest({
         message: messages.errors.invalidRequestArgs(),
-        data: args,
+        data: { ...(args || {}), cause: messages.errors.invalidRequestArgs() },
       });
     }
 
     const { method, params } = args;
 
     if (typeof method !== "string" || method.length === 0) {
-      throw ethErrors.rpc.invalidRequest({
+      throw rpcErrors.invalidRequest({
         message: messages.errors.invalidRequestMethod(),
-        data: args,
+        data: { ...(args || {}), cause: messages.errors.invalidRequestArgs() },
       });
     }
 
     if (params !== undefined && !Array.isArray(params) && (typeof params !== "object" || params === null)) {
-      throw ethErrors.rpc.invalidRequest({
+      throw rpcErrors.invalidRequest({
         message: messages.errors.invalidRequestParams(),
-        data: args,
+        data: { ...(args || {}), cause: messages.errors.invalidRequestArgs() },
       });
     }
 

@@ -5,9 +5,12 @@ module.exports = {
   transpileDependencies: true,
   configureWebpack: (config) => {
     config.resolve.fallback = {
-      crypto: require.resolve("crypto-browserify"),
-      stream: require.resolve("stream-browserify"),
-      assert: require.resolve("assert"),
+      crypto: false,
+      stream: false,
+      assert: false,
+      zlib: false,
+      https: false,
+      http: false,
       // os: require.resolve("os-browserify/browser"),
       // https: require.resolve("https-browserify"),
       // http: require.resolve("stream-http"),
