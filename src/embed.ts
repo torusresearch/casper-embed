@@ -187,10 +187,11 @@ class Torus {
       const res = await new Promise((resolve, reject) => {
         // We use this method because we want to update inPage provider state with account info
         this.provider._rpcRequest(
-          { method: "casper_requestAccounts", params: [this.requestedLoginProvider, params.login_hint] },
+          { method: "ethereum_requestAccounts", params: [this.requestedLoginProvider, params.login_hint] },
           getRpcPromiseCallback(resolve, reject)
         );
       });
+      log.info("check: res", res);
 
       if (Array.isArray(res) && res.length > 0) {
         return res;
@@ -400,8 +401,9 @@ class Torus {
     this.provider = proxiedInPageProvider;
     this.communicationProvider = proxiedCommunicationProvider;
 
+    log.info("test _setupWeb3 ");
     await Promise.all([
-      inPageProvider._initializeState(),
+      // inPageProvider._initializeState(),
       communicationProvider._initializeState({
         ...providerParams,
         dappStorageKey: this.dappStorageKey,

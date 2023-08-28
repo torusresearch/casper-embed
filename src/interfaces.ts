@@ -101,11 +101,6 @@ export interface NetworkInterface {
    * Display name for the network
    */
   displayName: string;
-
-  /**
-   * Casper Network Key
-   */
-  networkKey: string;
 }
 
 export interface PaymentParams {

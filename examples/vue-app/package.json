@@ -9,7 +9,7 @@
     "install:local": "npm i ../../toruslabs-casper-embed-*.tgz"
   },
   "dependencies": {
-    "@toruslabs/casper-embed": "file:../../",
+    "@toruslabs/casper-embed": "file:../..",
     "@toruslabs/vue-components": "^4.2.3",
     "casper-js-sdk": "^2.13.2",
     "core-js": "^3.31.0",

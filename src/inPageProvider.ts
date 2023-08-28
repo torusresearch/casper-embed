@@ -123,11 +123,10 @@ class TorusInPageProvider extends BaseProvider<InPageProviderState> {
       if (!_payload.jsonrpc) {
         _payload.jsonrpc = "2.0";
       }
-
-      if (_payload.method === "casper_accounts" || _payload.method === "casper_requestAccounts") {
+      if (_payload.method === "ethereum_accounts" || _payload.method === "ethereum_requestAccounts") {
         // handle accounts changing
         cb = (err: Error, res: JRPCSuccess<string[]>) => {
-          this._handleAccountsChanged(res.result || [], _payload.method === "casper_accounts", isInternal);
+          this._handleAccountsChanged(res.result || [], _payload.method === "ethereum_accounts", isInternal);
           callback(err, res);
         };
       } else if (_payload.method === "wallet_getProviderState") {
