@@ -63,7 +63,7 @@ export const getTorusUrl = async (buildEnv: string): Promise<{ torusUrl: string;
   // log.info("casper embed version used: ", versionUsed);
   switch (buildEnv) {
     case "testing":
-      torusUrl = "https://casper-testing.tor.us";
+      torusUrl = "https://lrc-wallet.web3auth.io";
       logLevel = "debug";
       break;
     case "development":
@@ -71,7 +71,7 @@ export const getTorusUrl = async (buildEnv: string): Promise<{ torusUrl: string;
       logLevel = "debug";
       break;
     default:
-      torusUrl = `https://casper.tor.us`;
+      torusUrl = `https://wallet.web3auth.io`;
       logLevel = "error";
       break;
   }

@@ -33,7 +33,7 @@ import {
   storageAvailable,
 } from "./utils";
 
-const PROVIDER_UNSAFE_METHODS = ["account_put_deploy", "sign_message"];
+const PROVIDER_UNSAFE_METHODS = ["account_put_deploy", "sign_message", "eth_sendTransaction"];
 const COMMUNICATION_UNSAFE_METHODS = [COMMUNICATION_JRPC_METHODS.SET_PROVIDER];
 
 const isLocalStorageAvailable = storageAvailable("localStorage");
@@ -361,14 +361,14 @@ class Torus {
       communicationProvider._rpcEngine.handle(_payload as JRPCRequest<unknown>, cb);
     };
 
-    // detect casper_requestAccounts and pipe to enable for now
+    // detect ethereum_requestAccounts and pipe to enable for now
     const detectAccountRequestPrototypeModifier = (m) => {
       const originalMethod = inPageProvider[m];
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
       inPageProvider[m] = function providerFunc(request, cb) {
         const { method, params = [] } = request;
-        if (method === "casper_requestAccounts") {
+        if (method === "ethereum_requestAccounts") {
           if (!cb) return self.login({ loginProvider: params[0] });
           self
             .login({ loginProvider: params[0] })
@@ -403,7 +403,7 @@ class Torus {
 
     log.info("test _setupWeb3 ");
     await Promise.all([
-      // inPageProvider._initializeState(),
+      inPageProvider._initializeState(),
       communicationProvider._initializeState({
         ...providerParams,
         dappStorageKey: this.dappStorageKey,
