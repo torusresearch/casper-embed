@@ -14,11 +14,11 @@ import {
   SendCallBack,
   Stream,
 } from "@toruslabs/openlogin-jrpc";
-import { isDuplexStream } from "is-stream";
 import pump from "pump";
 import type { Duplex } from "readable-stream";
 
 import { BaseProviderState, Maybe, ProviderOptions, UnValidatedJsonRpcRequest } from "./interfaces";
+import { isDuplexStream } from "./isStream";
 import messages from "./messages";
 import { createErrorMiddleware, logStreamDisconnectWarning } from "./utils";
 
@@ -124,7 +124,7 @@ abstract class BaseProvider<U extends BaseProviderState> extends SafeEventEmitte
     }
 
     return new Promise((resolve, reject) => {
-      this._rpcRequest({ method, params }, getRpcPromiseCallback(resolve, reject));
+      this._rpcRequest({ method, params }, getRpcPromiseCallback(resolve as (value?: unknown) => void, reject) as (...args: unknown[]) => void);
     });
   }
 
@@ -137,7 +137,7 @@ abstract class BaseProvider<U extends BaseProviderState> extends SafeEventEmitte
    * @param cb - The callback function.
    */
   send(payload: JRPCRequest<unknown>, callback: (error: Error | null, result?: JRPCResponse<unknown>) => void): void {
-    this._rpcRequest(payload, callback);
+    this._rpcRequest(payload, callback as (...args: unknown[]) => void);
   }
 
   sendAsync<T, V>(req: JRPCRequest<T>): Promise<V>;
@@ -150,7 +150,7 @@ abstract class BaseProvider<U extends BaseProviderState> extends SafeEventEmitte
    */
   sendAsync(payload: JRPCRequest<unknown>): Promise<unknown> {
     return new Promise((resolve, reject) => {
-      this._rpcRequest(payload, getRpcPromiseCallback(resolve, reject));
+      this._rpcRequest(payload, getRpcPromiseCallback(resolve as (value?: unknown) => void, reject) as (...args: unknown[]) => void);
     });
   }
 

@@ -5,11 +5,12 @@ import type { Duplex } from "readable-stream";
 
 import BaseProvider from "./baseProvider";
 import configuration from "./config";
-import { documentReady, htmlToElement } from "./embedUtils";
+import { htmlToElement } from "./embedUtils";
 import {
   BUTTON_POSITION,
   CommunicationProviderState,
   EMBED_TRANSLATION_ITEM,
+  LocaleLinks,
   LOGIN_PROVIDER_TYPE,
   ProviderOptions,
   UnValidatedJsonRpcRequest,
@@ -62,7 +63,12 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
     // public state
     this.torusUrl = "";
     this.dappStorageKey = "";
-    const languageTranslations = configuration.translations[getUserLanguage()];
+    const languageTranslations =
+      configuration.translations[
+        getUserLanguage() as keyof LocaleLinks<{
+          embed: EMBED_TRANSLATION_ITEM;
+        }>
+      ];
     this.embedTranslations = languageTranslations.embed;
     this.windowRefs = {};
 
@@ -324,25 +330,16 @@ class TorusCommunicationProvider extends BaseProvider<CommunicationProviderState
     const btnContainer = htmlToElement('<div id="torusAlert__btn-container"></div>');
     btnContainer.appendChild(successAlert);
     torusAlert.appendChild(btnContainer);
-    const bindOnLoad = () => {
-      successAlert.addEventListener("click", () => {
-        this._handleWindow(windowId, {
-          url,
-          target: "_blank",
-          features: getPopupFeatures(FEATURES_CONFIRM_WINDOW),
-        });
-        torusAlert.remove();
-        if (this.torusAlertContainer.children.length === 0) this.torusAlertContainer.style.display = "none";
+    this.torusAlertContainer.appendChild(torusAlert);
+    successAlert.addEventListener("click", () => {
+      this._handleWindow(windowId, {
+        url,
+        target: "_blank",
+        features: getPopupFeatures(FEATURES_CONFIRM_WINDOW),
       });
-    };
-
-    const attachOnLoad = () => {
-      this.torusAlertContainer.appendChild(torusAlert);
-    };
-
-    await documentReady();
-    attachOnLoad();
-    bindOnLoad();
+      torusAlert.remove();
+      if (this.torusAlertContainer.children.length === 0) this.torusAlertContainer.style.display = "none";
+    });
     this.torusAlertContainer.style.display = "block";
   }
 
