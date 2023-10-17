@@ -112,14 +112,14 @@ abstract class BaseProvider<U extends BaseProviderState> extends SafeEventEmitte
     if (typeof method !== "string" || method.length === 0) {
       throw rpcErrors.invalidRequest({
         message: messages.errors.invalidRequestMethod(),
-        data: { ...(args || {}), cause: messages.errors.invalidRequestArgs() },
+        data: { ...(args || {}), cause: messages.errors.invalidRequestMethod() },
       });
     }
 
     if (params !== undefined && !Array.isArray(params) && (typeof params !== "object" || params === null)) {
       throw rpcErrors.invalidRequest({
         message: messages.errors.invalidRequestParams(),
-        data: { ...(args || {}), cause: messages.errors.invalidRequestArgs() },
+        data: { ...(args || {}), cause: messages.errors.invalidRequestParams() },
       });
     }
 

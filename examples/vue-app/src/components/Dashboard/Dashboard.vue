@@ -3,7 +3,17 @@ import { computed, onMounted, ref } from "vue";
 import { Icon } from "@toruslabs/vue-components";
 import Torus from "@toruslabs/casper-embed";
 
-import { CasperServiceByJsonRPC, CLPublicKey, CLValueBuilder, decodeBase16, DeployUtil, RuntimeArgs, verifyMessageSignature } from "casper-js-sdk";
+import {
+  CasperClient,
+  CasperServiceByJsonRPC,
+  CLPublicKey,
+  CLValueBuilder,
+  decodeBase16,
+  DeployUtil,
+  JsonDeploy,
+  RuntimeArgs,
+  verifyMessageSignature,
+} from "casper-js-sdk";
 import { SafeEventEmitterProvider } from "@toruslabs/openlogin-jrpc";
 
 import Button from "../Button";
@@ -54,6 +64,7 @@ onMounted(async () => {
     isLoading.value = true;
     torus = new Torus();
     await torus.init({
+      buildEnv: "development",
       showTorusButton: true,
       network: SUPPORTED_NETWORKS[CHAINS.CASPER_TESTNET],
     });
@@ -138,6 +149,37 @@ const sendCSPR = async () => {
   }
 };
 
+const signSendCSPR = async () => {
+  try {
+    const receiverClPubKey = CLPublicKey.fromHex("02036d0a481019747b6a761651fa907cc62c0d0ebd53f4152e9f965945811aed2ba8");
+    const senderKey = CLPublicKey.fromHex(account.value);
+    const deploy = DeployUtil.makeDeploy(
+      new DeployUtil.DeployParams(senderKey, DEPLOY_CHAIN_NAME, 1, 1800000),
+      DeployUtil.ExecutableDeployItem.newTransfer(
+        2500000000, // 2.5 cspr
+        receiverClPubKey, // receiver CLPubKey
+        null, // we will use main purse, so it can be left null
+        randomNumericId()
+      ),
+      DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT_FOR_NATIVE_TRANSFER)
+    );
+
+    const deployRes = await torus?.signDeploy(DeployUtil.deployToJson(deploy).deploy as JsonDeploy);
+
+    uiConsole("CSPR Response", deployRes);
+    const casperService = new CasperClient("https://testnet.casper-node.tor.us/rpc");
+    const parsedDeploy = DeployUtil.deployFromJson({ deploy: deployRes });
+    if (parsedDeploy.ok) {
+      const deployHash = await casperService.putDeploy(parsedDeploy.val);
+      uiConsole("Deploy Hash", deployHash);
+    } else {
+      throw parsedDeploy.val;
+    }
+  } catch (error) {
+    uiConsole(error);
+  }
+};
+
 const transferErc20Tokens = async () => {
   const AMOUNT_TO_TRANSFER = 2000000000000;
   // Gas price to be offered.
@@ -205,6 +247,10 @@ const uiConsole = (...args: unknown[]): void => {
   const el = document.querySelector("#console>pre");
   const h1 = document.querySelector("#console>h1");
   const consoleBtn = document.querySelector<HTMLElement>("#console>div.clear-console-btn");
+  if (args[0] instanceof Error || args[1] instanceof Error) {
+    console.error(args);
+    return;
+  }
   if (h1) {
     h1.innerHTML = args[0] as string;
   }
@@ -296,6 +342,7 @@ const copyAccountAddress = () => {
           </div>
           <div class="flex-row">
             <Button @on-click="sendCSPR" label="CSPR">Send CSPR</Button>
+            <Button @on-click="signSendCSPR" label="CSPR">Sign Send CSPR</Button>
           </div>
         </div>
       </div>

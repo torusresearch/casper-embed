@@ -2,6 +2,7 @@
 import { COMMUNICATION_JRPC_METHODS } from "@toruslabs/base-controllers";
 import { setAPIKey } from "@toruslabs/http-helpers";
 import { BasePostMessageStream, getRpcPromiseCallback, JRPCRequest } from "@toruslabs/openlogin-jrpc";
+import { JsonDeploy } from "casper-js-sdk";
 
 import {
   BUTTON_POSITION,
@@ -34,7 +35,7 @@ import {
   storageAvailable,
 } from "./utils";
 
-const PROVIDER_UNSAFE_METHODS = ["account_put_deploy", "sign_message"];
+const PROVIDER_UNSAFE_METHODS = ["account_put_deploy", "account_sign_deploy", "sign_message"];
 const COMMUNICATION_UNSAFE_METHODS = [COMMUNICATION_JRPC_METHODS.SET_PROVIDER];
 
 const isLocalStorageAvailable = storageAvailable("localStorage");
@@ -303,6 +304,15 @@ class Torus {
       params: { ...params },
     });
     return signMessageRes as { signature: Uint8Array };
+  }
+
+  async signDeploy(params: JsonDeploy): Promise<JsonDeploy> {
+    if (!this.isInitialized) throw new Error("Torus is not initialized");
+    const signMessageRes = await this.provider.request<{ deploy: JsonDeploy }, { deploy: JsonDeploy }>({
+      method: "account_sign_deploy",
+      params: { deploy: { ...params } },
+    });
+    return signMessageRes.deploy as JsonDeploy;
   }
 
   private async _setupWeb3(providerParams: { torusUrl: string }): Promise<void> {
